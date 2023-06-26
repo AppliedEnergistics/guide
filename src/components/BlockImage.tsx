@@ -1,15 +1,26 @@
 import { useGuide } from "../Guide.ts";
+import { guiScaledDimension } from "../css.ts";
 
-function BlockImage({ assetsBasename }: { assetsBasename: string }) {
+export type BlockImageProps = {
+  // These are compiled during export
+  "src@2"?: string;
+  "src@4"?: string;
+  "src@8"?: string;
+  width: number;
+  height: number;
+};
+
+function BlockImage({ width, height, ...rest }: BlockImageProps) {
   const guide = useGuide();
-  const modelAsset = guide.getAssetUrl(assetsBasename + ".gltf");
-  const imageAsset = guide.getAssetUrl(assetsBasename + ".png");
+  const assetUrl = guide.baseUrl + "/" + rest["src@8"];
   return (
-    <model-viewer
-      src={modelAsset}
-      poster={imageAsset}
-      style={{ width: "600px", height: "400px" }}
-    ></model-viewer>
+    <img
+      src={assetUrl}
+      style={{
+        width: guiScaledDimension(width),
+        height: guiScaledDimension(height),
+      }}
+    />
   );
 }
 

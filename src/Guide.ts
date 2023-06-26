@@ -1,4 +1,6 @@
 import { createContext, useContext } from "react";
+import { GuideVersion } from "./GuideVersionIndex.ts";
+import { Root as MdAstRoot } from "mdast";
 
 export interface RecipeInfo {
   id: string;
@@ -46,7 +48,11 @@ export interface P2PTypeInfo {
   attunementApiClasses: string[];
 }
 
-export type PageSummary = {};
+export type ExportedPage = {
+  title: string;
+  astRoot: MdAstRoot;
+  frontmatter: Record<string, unknown>;
+};
 
 export type DyeColor =
   | "yellow"
@@ -67,13 +73,8 @@ export type DyeColor =
   | "brown";
 
 export type GuideIndex = {
-  generated: number;
-
-  gameVersion: string;
-
-  modVersion: string;
   defaultNamespace: string;
-  pages: Record<string, PageSummary>;
+  pages: Record<string, ExportedPage>;
   navigationRootNodes: NavigationNode[];
 
   items: ItemInfo[];
@@ -108,7 +109,11 @@ export class Guide {
 
   readonly pageByItemIndex: ItemIndex;
 
-  constructor(baseUrl: string, readonly index: GuideIndex) {
+  constructor(
+    baseUrl: string,
+    readonly version: GuideVersion,
+    readonly index: GuideIndex
+  ) {
     this.index = index;
     this.baseUrl = baseUrl.replace(/\/+$/, "");
 
@@ -251,6 +256,10 @@ export class Guide {
     } else {
       return undefined;
     }
+  }
+
+  pageExists(pageId: string): boolean {
+    return this.index.pages[pageId] !== undefined;
   }
 }
 

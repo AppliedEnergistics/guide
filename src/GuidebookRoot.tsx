@@ -1,90 +1,65 @@
-import { Link, useParams, useRouteLoaderData } from "react-router-dom";
-import { ReactNode, useEffect, useMemo, useState } from "react";
-import { Guide, GuideIndex, GuideProvider, useGuide } from "./Guide.ts";
-import { compilePage } from "./compilePage.tsx";
+import {
+  createHashRouter,
+  Link,
+  Outlet,
+  RouteObject,
+  RouterProvider,
+} from "react-router-dom";
+import { useMemo } from "react";
+import { Guide, useGuide } from "./Guide.ts";
 import css from "./GuidebookRoot.module.css";
 import logo from "./assets/logo_00.png";
 import GuidebookNavBar from "./GuidebookNavBar.tsx";
+import GuidebookPageRoute from "./components/GuidebookPageRoute.tsx";
 
-function GuidebookPageLoader({ pageId }: { pageId: string }) {
-  const guide = useGuide();
-  const [page, setPage] = useState<ReactNode>();
-  const [error, setError] = useState<any>();
+function ShellRoute() {
+  return (
+    <main className={css.main}>
+      <Link to="/" className={css.logo}>
+        <img src={logo} alt="" />
+        Applied Energistics 2
+      </Link>
+      <div></div>
+      <GuidebookNavBar />
+      <article>
+        <Outlet />
+      </article>
+    </main>
+  );
+}
 
-  useEffect(() => {
-    let ignore = false;
-    setPage(null);
-    setError(undefined);
-    guide
-      .fetchAsset(pageId)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch " + pageId);
-        }
-        return response.text();
-      })
-      .then((pageContent) => {
-        return compilePage(guide, pageId, pageContent);
-      })
-      .then((response) => {
-        if (!ignore) {
-          setPage(response);
-        }
-      })
-      .catch((err) => {
-        if (!ignore) {
-          setError(err);
-        }
-      });
+function createRouter(guide: Guide) {
+  const basename = "/" + guide.version.gameVersion;
 
-    return () => {
-      ignore = true;
-    };
-  }, [guide, pageId]);
+  const pageRoutes = Object.entries(guide.index.pages).map(([pageId, page]) => {
+    const index = pageId === guide.defaultNamespace + ":index.md";
 
-  if (error || !page) {
-    let errorMessage: string;
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else {
-      errorMessage = "Unknown error";
+    return {
+      path: "/" + pageId,
+      element: <GuidebookPageRoute pageId={pageId} page={page} />,
+      index,
+    } satisfies RouteObject;
+  });
+
+  return createHashRouter(
+    [
+      {
+        path: "/",
+        element: <ShellRoute />,
+        children: pageRoutes,
+      },
+    ],
+    {
+      basename,
     }
-    return (
-      <div>
-        Failed to load {pageId}: {errorMessage}
-      </div>
-    );
-  }
-
-  return page;
+  );
 }
 
 function GuidebookRoot() {
-  const guideIndex = useRouteLoaderData("guideRoot") as GuideIndex;
-  const guide = useMemo(
-    () => new Guide("guide-assets/1.20/", guideIndex),
-    [guideIndex]
-  );
-  let pageId = useParams()["*"];
-  if (!pageId) {
-    pageId = `${guideIndex.defaultNamespace}:index.md`;
-  }
+  const guide = useGuide();
+  const router = useMemo(() => createRouter(guide), [guide]);
 
-  return (
-    <GuideProvider value={guide}>
-      <main className={css.main}>
-        <Link to="/" className={css.logo}>
-          <img src={logo} alt="" />
-          Applied Energistics 2
-        </Link>
-        <div></div>
-        <GuidebookNavBar currentPageId={pageId} />
-        <article>
-          <GuidebookPageLoader pageId={pageId} />
-        </article>
-      </main>
-    </GuideProvider>
-  );
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default GuidebookRoot;

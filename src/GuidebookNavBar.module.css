@@ -21,7 +21,7 @@
     text-decoration: none;
 }
 
-.root a.active {
+.root a:global(.active) {
     background-color: var(--color--navbar-row-hover);
 }
 

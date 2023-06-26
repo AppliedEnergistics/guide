@@ -1,24 +1,41 @@
 import { useGuide } from "../Guide.ts";
+import ModelViewer from "./ModelViewer.tsx";
+
+export type GameSceneProps = {
+  zoom?: number;
+  background?: string;
+  interactive?: boolean;
+
+  // These are added during export
+  src: string;
+  placeholder: string;
+  width: number;
+  height: number;
+};
 
 function GameScene({
-  assetsBasename,
-  interactive,
-}: {
-  assetsBasename: string;
-  interactive?: boolean;
-}) {
+  zoom = 1,
+  background = "transparent",
+  interactive = false,
+  src,
+  placeholder,
+  width,
+  height,
+}: GameSceneProps) {
   const guide = useGuide();
-  const modelAsset = guide.getAssetUrl(assetsBasename + ".gltf");
-  const imageAsset = guide.getAssetUrl(assetsBasename + ".png");
-  interactive ??= false;
+  const modelAsset = guide.baseUrl + "/" + src;
+  const imageAsset = guide.baseUrl + "/" + placeholder;
 
   return (
-    <model-viewer
+    <ModelViewer
       src={modelAsset}
-      poster={imageAsset}
-      camera-controls={interactive || undefined}
-      style={{ width: "600px", height: "400px" }}
-    ></model-viewer>
+      placeholder={imageAsset}
+      cameraControls={interactive}
+      zoom={zoom}
+      background={background}
+      width={width}
+      height={height}
+    ></ModelViewer>
   );
 }
 

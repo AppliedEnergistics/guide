@@ -1,0 +1,54 @@
+import {
+  GuideVersion,
+  GuideVersionIndex,
+  useGuideVersionIndex,
+} from "./GuideVersionIndex.ts";
+import GuideVersionSelection from "./GuideVersionSelection.tsx";
+import GuideLoader from "./GuideLoader.tsx";
+import GuidebookRoot from "./GuidebookRoot.tsx";
+
+/**
+ * Searches for the guide version, whose game-version matches the version found in the fragment.
+ */
+function getSelectedGuideVersion(
+  versionIndex: GuideVersionIndex
+): GuideVersion | undefined {
+  const fragment = window.location.hash;
+  const m = fragment.match(/^#\/([^/]+)\//);
+  if (!m) {
+    console.debug("No game present in fragment: '%s'", fragment);
+    return undefined;
+  }
+  const gameVersion = m[1];
+
+  const version = versionIndex.versions.find(
+    (v) => v.gameVersion === gameVersion
+  );
+  if (!version) {
+    console.info("Unknown game version found in fragment: '%s'", gameVersion);
+  }
+
+  return version;
+}
+
+/**
+ * This component will check if the path contains a Minecraft version.
+ * If not, it will show a guide selection list.
+ * If it does, it will instead render a GuideLoader using the right version.
+ */
+function InitialGuideSelection() {
+  const versionIndex = useGuideVersionIndex();
+  const selectedVersion = getSelectedGuideVersion(versionIndex);
+
+  if (selectedVersion) {
+    return (
+      <GuideLoader version={selectedVersion}>
+        <GuidebookRoot />
+      </GuideLoader>
+    );
+  } else {
+    return <GuideVersionSelection versionIndex={versionIndex} />;
+  }
+}
+
+export default InitialGuideSelection;

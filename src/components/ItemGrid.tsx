@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 
-function ItemGrid({ children }: PropsWithChildren<never>) {
+function ItemGrid({ children }: PropsWithChildren) {
   return (
     <div
       style={{

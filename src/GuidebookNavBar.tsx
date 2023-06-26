@@ -1,30 +1,21 @@
 import { NavigationNode, useGuide } from "./Guide.ts";
-import { Link, LinkProps } from "react-router-dom";
+import { LinkProps, NavLink } from "react-router-dom";
 import css from "./GuidebookNavBar.module.css";
 import { useState } from "react";
 
 function NavbarLink({
   node,
   expanded,
-  currentPageId,
   ...rest
 }: {
   node: NavigationNode;
   expanded?: boolean;
-  currentPageId: string;
 } & Omit<LinkProps, "to" | "relative">) {
-  const active = node.pageId === currentPageId;
-
   return (
-    <Link
-      to={"./" + node.pageId}
-      relative={"route"}
-      className={active ? css.active : undefined}
-      {...rest}
-    >
+    <NavLink to={"./" + node.pageId} relative={"route"} {...rest}>
       {expanded !== undefined && <CollapseIndicator expanded={expanded} />}
       {node.title}
-    </Link>
+    </NavLink>
   );
 }
 
@@ -42,13 +33,8 @@ function CollapseIndicator({ expanded }: { expanded: boolean }) {
   );
 }
 
-function CollapsibleNavbarNode({
-  currentPageId,
-  node,
-}: {
-  currentPageId: string;
-  node: NavigationNode;
-}) {
+function CollapsibleNavbarNode({ node }: { node: NavigationNode }) {
+  // TODO: should be expanded by default if current page is within this
   const [expanded, setExpanded] = useState(false);
   return (
     <>
@@ -56,24 +42,17 @@ function CollapsibleNavbarNode({
         node={node}
         expanded={expanded}
         onClick={() => setExpanded(!expanded)}
-        currentPageId={currentPageId}
       />
       {expanded && (
         <div className={css.subLevel}>
-          <NavbarLevel nodes={node.children} currentPageId={currentPageId} />
+          <NavbarLevel nodes={node.children} />
         </div>
       )}
     </>
   );
 }
 
-function NavbarLevel({
-  currentPageId,
-  nodes,
-}: {
-  currentPageId: string;
-  nodes: NavigationNode[];
-}) {
+function NavbarLevel({ nodes }: { nodes: NavigationNode[] }) {
   if (nodes.length == 0) {
     return null;
   }
@@ -82,28 +61,20 @@ function NavbarLevel({
     <>
       {nodes.map((node, idx) =>
         node.children.length ? (
-          <CollapsibleNavbarNode
-            key={idx}
-            node={node}
-            currentPageId={currentPageId}
-          />
+          <CollapsibleNavbarNode key={idx} node={node} />
         ) : (
-          <NavbarLink key={idx} node={node} currentPageId={currentPageId} />
+          <NavbarLink key={idx} node={node} />
         )
       )}
     </>
   );
 }
 
-function GuidebookNavBar({ currentPageId }: { currentPageId: string }) {
+function GuidebookNavBar() {
   const guide = useGuide();
-
   return (
     <aside className={css.root}>
-      <NavbarLevel
-        currentPageId={currentPageId}
-        nodes={guide.index.navigationRootNodes}
-      />
+      <NavbarLevel nodes={guide.index.navigationRootNodes} />
     </aside>
   );
 }

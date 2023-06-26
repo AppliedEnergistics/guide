@@ -1,0 +1,12 @@
+
+.root {
+    position: relative;
+}
+
+.root > img {
+    position: absolute;
+}
+
+.viewport {
+    display: inline-block;
+}

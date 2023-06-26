@@ -39,7 +39,7 @@ function ItemLink({ id, children, tooltip }: ItemLinkProps) {
     content = <span className={css.itemTooltip}>{children}</span>;
   } else {
     content = (
-      <Link to={"./" + pageUrl} relative={"route"}>
+      <Link to={"/" + pageUrl} relative={"route"}>
         {children}
       </Link>
     );

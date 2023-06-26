@@ -76,6 +76,7 @@ hr {
     background-color: rgb(64, 64, 64);
     background-size: calc(32px * var(--gui-scale));
     background-blend-mode: multiply;
+    image-rendering: pixelated;
 
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     font-size: 120%;
@@ -83,6 +84,10 @@ hr {
     font-weight: 400;
 
     color-scheme: light dark;
+}
+
+:root > * {
+    image-rendering: unset;
 }
 
 html, body, #root {
