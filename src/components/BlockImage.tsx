@@ -1,4 +1,4 @@
-import { useGuide } from "../Guide.ts";
+import { useGuide } from "../data/Guide.ts";
 import { guiScaledDimension } from "../css.ts";
 
 export type BlockImageProps = {

@@ -2,7 +2,7 @@ import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 import smelt from "./smelt.png";
 import RecipeArrow from "./RecipeArrow";
-import { SmeltingRecipeInfo, useGuide } from "../../Guide.ts";
+import { SmeltingRecipeInfo, useGuide } from "../../data/Guide.ts";
 
 export interface SmeltingRecipeProps {
   recipe: SmeltingRecipeInfo;

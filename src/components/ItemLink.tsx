@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import css from "./ItemLink.module.css";
 import ItemTooltip, { TooltipMode } from "./ItemTooltip";
-import { useGuide } from "../Guide.ts";
+import { useGuide } from "../data/Guide.ts";
 import { Link, useLocation } from "react-router-dom";
 import ErrorText from "./ErrorText.tsx";
 

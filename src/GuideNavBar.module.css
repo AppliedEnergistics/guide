@@ -1,8 +1,5 @@
 
 .root {
-    background: linear-gradient(180deg, var(--color--navbar-bg-top) 0%, var(--color--navbar-bg-bottom) 100%);
-    overflow-y: scroll;
-    padding: 5px;
 }
 
 .root svg {

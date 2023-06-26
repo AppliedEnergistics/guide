@@ -1,7 +1,7 @@
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 import RecipeArrow from "./RecipeArrow";
-import { InscriberRecipeInfo, useGuide } from "../../Guide.ts";
+import { InscriberRecipeInfo, useGuide } from "../../data/Guide.ts";
 
 export interface InscriberRecipeProps {
   recipe: InscriberRecipeInfo;

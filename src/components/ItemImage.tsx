@@ -1,4 +1,4 @@
-import { useGuide } from "../Guide.ts";
+import { useGuide } from "../data/Guide.ts";
 
 function ItemImage({ id, scale }: { id: string; scale: number }) {
   const guide = useGuide();

@@ -1,32 +1,12 @@
 import {
   createHashRouter,
-  Link,
-  Outlet,
   RouteObject,
   RouterProvider,
 } from "react-router-dom";
 import { useMemo } from "react";
-import { Guide, useGuide } from "./Guide.ts";
-import css from "./GuidebookRoot.module.css";
-import logo from "./assets/logo_00.png";
-import GuidebookNavBar from "./GuidebookNavBar.tsx";
+import { Guide, useGuide } from "./data/Guide.ts";
 import GuidebookPageRoute from "./components/GuidebookPageRoute.tsx";
-
-function ShellRoute() {
-  return (
-    <main className={css.main}>
-      <Link to="/" className={css.logo}>
-        <img src={logo} alt="" />
-        Applied Energistics 2
-      </Link>
-      <div></div>
-      <GuidebookNavBar />
-      <article>
-        <Outlet />
-      </article>
-    </main>
-  );
-}
+import GuideShell from "./GuideShell.tsx";
 
 function createRouter(guide: Guide) {
   const basename = "/" + guide.version.gameVersion;
@@ -45,7 +25,7 @@ function createRouter(guide: Guide) {
     [
       {
         path: "/",
-        element: <ShellRoute />,
+        element: <GuideShell />,
         children: pageRoutes,
       },
     ],
@@ -55,11 +35,11 @@ function createRouter(guide: Guide) {
   );
 }
 
-function GuidebookRoot() {
+function GuideRoot() {
   const guide = useGuide();
   const router = useMemo(() => createRouter(guide), [guide]);
 
   return <RouterProvider router={router}></RouterProvider>;
 }
 
-export default GuidebookRoot;
+export default GuideRoot;

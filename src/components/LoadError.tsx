@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from "react";
-import { LoadResultError } from "../useLoadEffect.ts";
+import { LoadResultError } from "../data/useLoadEffect.ts";
 
 export type LoadErrorProps = {
   operation: string;

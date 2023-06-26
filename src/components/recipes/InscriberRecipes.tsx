@@ -1,6 +1,6 @@
 import InscriberRecipe from "./InscriberRecipe";
 import css from "./recipe.module.css";
-import { useGuide } from "../../Guide.ts";
+import { useGuide } from "../../data/Guide.ts";
 
 function InscriberRecipes() {
   const guide = useGuide();

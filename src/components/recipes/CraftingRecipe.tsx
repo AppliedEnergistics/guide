@@ -2,7 +2,7 @@ import RecipeIngredientGrid from "./RecipeIngredientGrid";
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 import RecipeArrow from "./RecipeArrow";
-import { CraftingRecipeInfo, useGuide } from "../../Guide.ts";
+import { CraftingRecipeInfo, useGuide } from "../../data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
 
 export interface CraftingRecipeProps {

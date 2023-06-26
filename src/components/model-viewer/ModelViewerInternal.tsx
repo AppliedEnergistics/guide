@@ -179,7 +179,6 @@ async function initialize(
   cc.rotationX = 30;
   cc.rotationY = 225; // I don't know why everything is rotate +90°...
   cc.rotationZ = 0;
-  console.info(cc.getViewMatrix());
   lookVector
     .transformDirection(cc.getViewMatrix())
     .multiplyScalar(sceneBounds.max.length());

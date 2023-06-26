@@ -2,7 +2,7 @@ import CraftingRecipe from "./CraftingRecipe";
 import InscriberRecipe from "./InscriberRecipe";
 import SmeltingRecipe from "./SmeltingRecipe";
 import css from "./recipe.module.css";
-import { useGuide } from "../../Guide.ts";
+import { useGuide } from "../../data/Guide.ts";
 import ErrorText from "../ErrorText.tsx";
 
 export interface RecipeProps {

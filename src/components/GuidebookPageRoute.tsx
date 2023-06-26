@@ -1,5 +1,5 @@
-import { ExportedPage, useGuide } from "../Guide.ts";
-import { compilePage } from "../pageCompiler/compilePage.tsx";
+import { ExportedPage, useGuide } from "../data/Guide.ts";
+import { compilePage } from "../page-compiler/compilePage.tsx";
 import { useMemo } from "react";
 
 export type GuidebookPageRouteProps = {

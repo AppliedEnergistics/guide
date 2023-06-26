@@ -1,4 +1,4 @@
-import { LoadResultError, LoadResultLoading } from "../useLoadEffect.ts";
+import { LoadResultError, LoadResultLoading } from "../data/useLoadEffect.ts";
 import LoadError from "./LoadError.tsx";
 import Loading from "./Loading.tsx";
 

@@ -1,11 +1,11 @@
 import { PropsWithChildren } from "react";
-import { guideAssetsUrl } from "./config.ts";
+import { guideAssetsUrl } from "./data/config.ts";
 import {
   GuideVersionIndex,
   GuideVersionIndexProvider,
-} from "./GuideVersionIndex.ts";
+} from "./data/GuideVersionIndex.ts";
 import Loading from "./components/Loading.tsx";
-import useLoadEffect from "./useLoadEffect.ts";
+import useLoadEffect from "./data/useLoadEffect.ts";
 
 function GuideVersionIndexLoader({ children }: PropsWithChildren) {
   const loadingResult = useLoadEffect<GuideVersionIndex>(

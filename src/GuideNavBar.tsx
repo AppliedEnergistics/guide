@@ -1,6 +1,6 @@
-import { NavigationNode, useGuide } from "./Guide.ts";
+import { NavigationNode, useGuide } from "./data/Guide.ts";
 import { LinkProps, NavLink } from "react-router-dom";
-import css from "./GuidebookNavBar.module.css";
+import css from "./GuideNavBar.module.css";
 import { useState } from "react";
 
 function NavbarLink({
@@ -70,13 +70,13 @@ function NavbarLevel({ nodes }: { nodes: NavigationNode[] }) {
   );
 }
 
-function GuidebookNavBar() {
+function GuideNavBar() {
   const guide = useGuide();
   return (
-    <aside className={css.root}>
+    <div className={css.root}>
       <NavbarLevel nodes={guide.index.navigationRootNodes} />
-    </aside>
+    </div>
   );
 }
 
-export default GuidebookNavBar;
+export default GuideNavBar;

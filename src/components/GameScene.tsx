@@ -1,4 +1,4 @@
-import { useGuide } from "../Guide.ts";
+import { useGuide } from "../data/Guide.ts";
 import ModelViewer from "./ModelViewer.tsx";
 
 export type GameSceneProps = {

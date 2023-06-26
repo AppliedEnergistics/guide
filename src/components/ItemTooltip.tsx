@@ -4,7 +4,7 @@ import Tippy from "@tippyjs/react";
 import css from "./ItemTooltip.module.css";
 import "tippy.js/dist/svg-arrow.css";
 import { roundArrow, inlinePositioning } from "tippy.js";
-import { ItemInfo } from "../Guide.ts";
+import { ItemInfo } from "../data/Guide.ts";
 
 const tippyPlugins = [inlinePositioning];
 

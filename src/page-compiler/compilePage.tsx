@@ -1,4 +1,4 @@
-import { ExportedPage, Guide } from "../Guide.ts";
+import { ExportedPage, Guide } from "../data/Guide.ts";
 import * as React from "react";
 import { ReactElement, ReactNode } from "react";
 import type { Node as UnistNode } from "unist";

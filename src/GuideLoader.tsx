@@ -1,7 +1,7 @@
-import { GuideVersion } from "./GuideVersionIndex.ts";
+import { GuideVersion } from "./data/GuideVersionIndex.ts";
 import { PropsWithChildren, useCallback } from "react";
-import useLoadEffect from "./useLoadEffect.ts";
-import { Guide, GuideProvider } from "./Guide.ts";
+import useLoadEffect from "./data/useLoadEffect.ts";
+import { Guide, GuideProvider } from "./data/Guide.ts";
 import LoadState from "./components/LoadState.tsx";
 
 export type GuideLoaderProps = PropsWithChildren<{

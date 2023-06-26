@@ -2,18 +2,19 @@ import {
   GuideVersion,
   GuideVersionIndex,
   useGuideVersionIndex,
-} from "./GuideVersionIndex.ts";
-import GuideVersionSelection from "./GuideVersionSelection.tsx";
+} from "./data/GuideVersionIndex.ts";
+import GuideVersionSelection from "./components/version-select/GuideVersionSelection.tsx";
 import GuideLoader from "./GuideLoader.tsx";
-import GuidebookRoot from "./GuidebookRoot.tsx";
+import GuideRoot from "./GuideRoot.tsx";
+import { useEffect, useState } from "react";
 
 /**
  * Searches for the guide version, whose game-version matches the version found in the fragment.
  */
 function getSelectedGuideVersion(
-  versionIndex: GuideVersionIndex
+  versionIndex: GuideVersionIndex,
+  fragment: string
 ): GuideVersion | undefined {
-  const fragment = window.location.hash;
   const m = fragment.match(/^#\/([^/]+)\//);
   if (!m) {
     console.debug("No game present in fragment: '%s'", fragment);
@@ -38,12 +39,31 @@ function getSelectedGuideVersion(
  */
 function InitialGuideSelection() {
   const versionIndex = useGuideVersionIndex();
-  const selectedVersion = getSelectedGuideVersion(versionIndex);
+  const [selectedVersion, setSelectedVersion] = useState(
+    getSelectedGuideVersion(versionIndex, window.location.hash)
+  );
+  // Trigger re-render when the location changes
+  useEffect(() => {
+    const locationChange = () => {
+      const newVersion = getSelectedGuideVersion(
+        versionIndex,
+        window.location.hash
+      );
+      // This shouldn't re-render if newVersion is identical to the old version
+      setSelectedVersion(newVersion);
+    };
+    window.addEventListener("popstate", locationChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("popstate", locationChange);
+    };
+  }, [versionIndex]);
 
   if (selectedVersion) {
     return (
       <GuideLoader version={selectedVersion}>
-        <GuidebookRoot />
+        <GuideRoot />
       </GuideLoader>
     );
   } else {

@@ -4,8 +4,12 @@
     height: 100%;
     display: grid;
     grid-template-columns: 350px 1fr;
-    grid-template-rows: max-content 1fr;
+    grid-template-rows: max-content 1fr max-content;
     padding: var(--document-rect-margin);
+}
+
+.versionPicker {
+    text-align: center;
 }
 
 .logo {
@@ -33,4 +37,11 @@
     padding: calc(5px * var(--gui-scale));
     background-color: #33333380;
     overflow-y: scroll;
+    grid-row: span 2;
+}
+
+.main > aside {
+    background: linear-gradient(180deg, var(--color--navbar-bg-top) 0%, var(--color--navbar-bg-bottom) 100%);
+    overflow-y: scroll;
+    padding: 5px;
 }
