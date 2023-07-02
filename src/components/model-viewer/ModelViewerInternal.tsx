@@ -8,13 +8,12 @@ import React, {
 import * as THREE from "three";
 import {
   Box3,
+  Camera,
   Euler,
   LineBasicMaterial,
   MathUtils,
-  Matrix4,
   Raycaster,
-  Sprite,
-  TextureLoader,
+  Scene,
   Vector2,
   Vector3,
 } from "three";
@@ -22,13 +21,13 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import css from "./ModelViewerInternal.module.css";
 import { guiScaledDimension } from "../../css.ts";
 import ErrorText from "../ErrorText.tsx";
-import diamond from "../../assets/diamond.png";
-import diamondColored from "../../assets/diamond_colored.png";
-import loadScene, { CameraProps } from "./loadScene.ts";
+import loadScene from "./loadScene.ts";
 
 import MinecraftTooltip from "../MinecraftTooltip.tsx";
 import { buildInWorldAnnotation } from "./buildInWorldAnnotation.ts";
 import addLevelLighting from "./addSceneLighting.ts";
+import buildOverlayAnnotation from "./buildOverlayAnnotations.ts";
+import TextureManager from "./TextureManager.ts";
 
 const DEBUG = false;
 
@@ -79,12 +78,23 @@ export type ModelViewerProps = {
   overlayAnnotations?: OverlayAnnotation[];
 };
 
-function getViewMatrix({ yaw, pitch, roll }: CameraProps): Matrix4 {
-  const result = new Matrix4();
-  result.multiply(new Matrix4().makeRotationZ(MathUtils.degToRad(roll)));
-  result.multiply(new Matrix4().makeRotationX(MathUtils.degToRad(pitch)));
-  result.multiply(new Matrix4().makeRotationY(MathUtils.degToRad(yaw)));
-  return result;
+const raycaster = new Raycaster();
+
+function getTooltipContent(
+  mousePos: Vector2,
+  camera: Camera,
+  scene: Scene
+): React.ReactNode | undefined {
+  raycaster.setFromCamera(mousePos, camera);
+  const intersections = raycaster.intersectObjects(scene.children);
+  for (const intersection of intersections) {
+    const object = intersection.object;
+
+    const annotation = object.userData.annotation as Annotation;
+    if (annotation && annotation.content) {
+      return annotation.content;
+    }
+  }
 }
 
 async function initialize(
@@ -98,15 +108,19 @@ async function initialize(
   setTooltipObject: (object: ReactNode | undefined) => void,
   abortSignal: AbortSignal
 ) {
+  const textureManager = new TextureManager(assetBaseUrl);
+
   const { cameraProps, group } = await loadScene(
-    assetBaseUrl,
+    textureManager,
     source,
     abortSignal
   );
 
+  // Center the scene
   const sceneBounds = new Box3();
   sceneBounds.expandByObject(group);
   const sceneCenter = sceneBounds.getCenter(new Vector3());
+  group.position.copy(sceneCenter.clone().negate());
 
   const viewportWidth = viewportEl.offsetWidth;
   const viewportHeight = viewportEl.offsetHeight;
@@ -115,62 +129,12 @@ async function initialize(
   addLevelLighting(scene);
   scene.add(group);
 
-  // Add "diamond overlays"
-  const textureLoader = new TextureLoader();
-  const diamondTexture = await textureLoader.loadAsync(diamond);
-  diamondTexture.minFilter = THREE.NearestFilter;
-  diamondTexture.magFilter = THREE.NearestFilter;
-  diamondTexture.wrapS = THREE.ClampToEdgeWrapping;
-  diamondTexture.wrapT = THREE.ClampToEdgeWrapping;
-
-  const diamondColoredTexture = await textureLoader.loadAsync(diamondColored);
-  diamondColoredTexture.minFilter = THREE.NearestFilter;
-  diamondColoredTexture.magFilter = THREE.NearestFilter;
-  diamondColoredTexture.wrapS = THREE.ClampToEdgeWrapping;
-  diamondColoredTexture.wrapT = THREE.ClampToEdgeWrapping;
-
-  const diamondMaterial = new THREE.SpriteMaterial({
-    map: diamondTexture,
-    transparent: true,
-    depthTest: false,
-    sizeAttenuation: false,
-    fog: false,
-  });
-
   for (const annotation of inWorldAnnotations) {
     group.add(buildInWorldAnnotation(annotation));
   }
 
   for (const annotation of overlayAnnotations) {
-    const spriteScale = 1 / 4;
-
-    const annotationNodeBottom = new Sprite(diamondMaterial);
-    annotationNodeBottom.position.set(
-      annotation.position[0],
-      annotation.position[1],
-      annotation.position[2]
-    );
-    annotationNodeBottom.scale.set(spriteScale, spriteScale, 1);
-    annotationNodeBottom.userData.annotation = annotation;
-    group.add(annotationNodeBottom);
-
-    const diamondColoredMaterial = new THREE.SpriteMaterial({
-      map: diamondColoredTexture,
-      transparent: true,
-      depthTest: false,
-      sizeAttenuation: false,
-      fog: false,
-      color: annotation.color,
-    });
-    const annotationNodeTop = new Sprite(diamondColoredMaterial);
-    annotationNodeTop.position.set(
-      annotation.position[0],
-      annotation.position[1],
-      annotation.position[2]
-    );
-    annotationNodeTop.scale.set(spriteScale, spriteScale, 1);
-    annotationNodeTop.userData.annotation = annotation;
-    group.add(annotationNodeTop);
+    group.add(await buildOverlayAnnotation(textureManager, annotation));
   }
 
   const camera = new THREE.OrthographicCamera(
@@ -182,15 +146,10 @@ async function initialize(
     30000
   );
 
-  const lookVector = new Vector3(0, 0, -1);
-  lookVector
-    .transformDirection(getViewMatrix(cameraProps))
-    .multiplyScalar(sceneBounds.max.length());
-
-  group.position.copy(sceneCenter.negate());
+  // group.position.copy(sceneCenter.negate());
 
   camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom;
-  camera.position.set(0, 0, 10);
+  camera.position.set(0, 0, 15);
   // We are rotating the camera position here instead of the scene,
   // which is why the angles are in reverse
   camera.position.applyEuler(
@@ -219,6 +178,8 @@ async function initialize(
   if (cameraControls) {
     controls = new OrbitControls(camera, viewportEl);
     controls.update();
+  } else {
+    camera.lookAt(new Vector3());
   }
 
   const renderer = new THREE.WebGLRenderer({
@@ -230,8 +191,6 @@ async function initialize(
   renderer.useLegacyLights = true;
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
-  const raycaster = new Raycaster();
-
   let disposed = false;
 
   const animate = function () {
@@ -242,23 +201,15 @@ async function initialize(
 
     controls?.update();
 
-    const mousePos = mousePosRef.current ?? new Vector2();
-    raycaster.setFromCamera(mousePos, camera);
-    const intersections = raycaster.intersectObjects(scene.children);
-    let tooltipContent: ReactNode | undefined;
-    for (const intersection of intersections) {
-      const object = intersection.object;
-
-      const annotation = object.userData.annotation as Annotation;
-      if (annotation && annotation.content) {
-        tooltipContent = annotation.content;
-        break;
-      }
-    }
-    setTooltipObject(tooltipContent);
-
-    // required if controls.enableDamping or controls.autoRotate are set to true
     renderer.render(scene, camera);
+
+    // Update what's under the mouse
+    const mousePos = mousePosRef.current;
+    if (mousePos) {
+      setTooltipObject(getTooltipContent(mousePos, camera, scene));
+    } else {
+      setTooltipObject(undefined);
+    }
   };
 
   animate();
@@ -301,6 +252,7 @@ function ModelViewerInternal({
     let disposer: undefined | (() => void) = undefined;
     const abortController = new AbortController();
     setInitialized(false);
+    setError(undefined);
     initialize(
       assetBaseUrl,
       src,
@@ -324,6 +276,12 @@ function ModelViewerInternal({
         if (abortController.signal.aborted) {
           return;
         }
+        console.error(
+          "An error occurred while loading scene %s: %o",
+          src,
+          err,
+          err.stack
+        );
         setError(err);
       });
 
