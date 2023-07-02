@@ -1,37 +1,26 @@
 
-.itemTooltip {
-    background-color: #888888;
-    border-radius: 8px;
-    padding: 2px;
-}
-
-.itemTooltip[data-animation="fade"][data-state="hidden"] {
-    opacity: 0;
-}
-
-.itemTooltip :global(.tippy-svg-arrow) {
-    fill: #888888;
-}
-
 .itemName {
     padding-left: 4px;
     padding-right: 4px;
     font-weight: bold;
-    color: black;
+    color: var(--text-color);
+
+    font-family: var(--minecraft-font);
+    text-shadow: 0.1em 0.1em 0 calc(var(--text-color) * 0.25);
 }
 
 .itemName.commonRarity {
-    color: white;
+    --text-color: white;
 }
 
 .itemName.uncommonRarity {
-    color: #ffff55;
+    --text-color: #ffff55;
 }
 
 .itemName.rareRarity {
-    color: #55ffff;
+    --text-color: #55ffff;
 }
 
 .itemName.epicRarity {
-    color: #ff55ff;
+    --text-color: #ff55ff;
 }

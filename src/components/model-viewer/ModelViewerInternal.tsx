@@ -1,169 +1,177 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
 import {
   Box3,
-  LinearEncoding,
-  LinearSRGBColorSpace,
+  Euler,
   LineBasicMaterial,
+  MathUtils,
   Matrix4,
-  MeshPhongMaterial,
-  MeshStandardMaterial,
+  Raycaster,
+  Sprite,
+  TextureLoader,
+  Vector2,
   Vector3,
 } from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import css from "./ModelViewerInternal.module.css";
 import { guiScaledDimension } from "../../css.ts";
 import ErrorText from "../ErrorText.tsx";
+import diamond from "../../assets/diamond.png";
+import diamondColored from "../../assets/diamond_colored.png";
+import loadScene, { CameraProps } from "./loadScene.ts";
+
+import MinecraftTooltip from "../MinecraftTooltip.tsx";
+import { buildInWorldAnnotation } from "./buildInWorldAnnotation.ts";
+import addLevelLighting from "./addSceneLighting.ts";
 
 const DEBUG = false;
 
-export type ModelViewerProps = {
-  src: string;
-  placeholder?: string;
-  cameraControls?: boolean;
-  zoom: number;
-  width: number;
-  height: number;
-  background: string;
+export type Annotation = OverlayAnnotation | InWorldAnnotation;
+
+export type OverlayAnnotation = {
+  type: "overlay";
+  position: [number, number, number];
+  color: string;
+  content: ReactNode;
 };
 
-enum Mode {
-  ORTOGRAPHIC = "ORTOGRAPHIC",
-  // ... other modes as required
-}
+export type InWorldAnnotation = InWorldBoxAnnotation | InWorldLineAnnotation;
 
-class CameraSettings {
-  offsetX = 0;
-  offsetY = 0;
-  zoom = 1;
-  rotationCenter: Vector3 = new Vector3(0, 0, 0);
-  rotationX = 0;
-  rotationY = 0;
-  rotationZ = 0;
-  mode: Mode = Mode.ORTOGRAPHIC;
+export type InWorldBoxAnnotation = {
+  type: "box";
+  minCorner: [number, number, number];
+  maxCorner: [number, number, number];
+  color: string;
+  thickness?: number;
+  content: ReactNode;
+  alwaysOnTop: boolean;
+};
 
-  getViewMatrix(): Matrix4 {
-    const result = new Matrix4();
+export type InWorldLineAnnotation = {
+  type: "line";
+  from: [number, number, number];
+  to: [number, number, number];
+  color: string;
+  thickness?: number;
+  content: ReactNode;
+  alwaysOnTop: boolean;
+};
 
-    // result.makeTranslation(this.offsetX, this.offsetY, 0);
+export type ModelViewerProps = {
+  assetBaseUrl: string;
 
-    // Assuming 0.625 comes from the default block model json GUI transform
-    const scaleFactor = 0.625 * 16 * this.zoom;
-    result.scale(new Vector3(scaleFactor, scaleFactor, scaleFactor));
+  background?: string;
+  interactive?: boolean;
 
-    if (this.mode == Mode.ORTOGRAPHIC) {
-      result.multiply(
-        new Matrix4().makeTranslation(
-          this.rotationCenter.x,
-          this.rotationCenter.y,
-          this.rotationCenter.z
-        )
-      );
-      result.multiply(
-        new Matrix4().makeRotationZ(CameraSettings.degToRad(this.rotationZ))
-      );
-      result.multiply(
-        new Matrix4().makeRotationX(CameraSettings.degToRad(this.rotationX))
-      );
-      result.multiply(
-        new Matrix4().makeRotationY(CameraSettings.degToRad(this.rotationY))
-      );
-      result.multiply(
-        new Matrix4().makeTranslation(
-          -this.rotationCenter.x,
-          -this.rotationCenter.y,
-          -this.rotationCenter.z
-        )
-      );
-    }
+  // These are added during export
+  src: string;
+  placeholder: string;
+  width: number;
+  height: number;
 
-    return result;
-  }
+  inWorldAnnotations?: InWorldAnnotation[];
+  overlayAnnotations?: OverlayAnnotation[];
+};
 
-  static degToRad(degrees: number): number {
-    return degrees * (Math.PI / 180);
-  }
+function getViewMatrix({ yaw, pitch, roll }: CameraProps): Matrix4 {
+  const result = new Matrix4();
+  result.multiply(new Matrix4().makeRotationZ(MathUtils.degToRad(roll)));
+  result.multiply(new Matrix4().makeRotationX(MathUtils.degToRad(pitch)));
+  result.multiply(new Matrix4().makeRotationY(MathUtils.degToRad(yaw)));
+  return result;
 }
 
 async function initialize(
+  assetBaseUrl: string,
   source: string,
   viewportEl: HTMLDivElement,
-  zoom: number,
-  cameraControls: boolean
+  cameraControls: boolean,
+  inWorldAnnotations: InWorldAnnotation[] | undefined = [],
+  overlayAnnotations: OverlayAnnotation[] | undefined = [],
+  mousePosRef: RefObject<Vector2>,
+  setTooltipObject: (object: ReactNode | undefined) => void,
+  abortSignal: AbortSignal
 ) {
-  const response = await fetch(source);
-  if (!response.ok) {
-    throw response;
-  }
-
-  const blob = await response.blob();
-  const ds = new DecompressionStream("gzip");
-  const decompressedStream = blob.stream().pipeThrough(ds);
-  const gltfContent = await new Response(decompressedStream).blob();
-  console.info(
-    "Loaded %s, %d byte compressed, %d byte uncompressed",
+  const { cameraProps, group } = await loadScene(
+    assetBaseUrl,
     source,
-    blob.size,
-    gltfContent.size
+    abortSignal
   );
-  const blobUrl = URL.createObjectURL(gltfContent); // TODO: REVOKE -> MEMORY LEAK
 
-  const manager = new THREE.LoadingManager();
-  manager.setURLModifier((url) => {
-    if (source === url) {
-      return blobUrl;
-    } else {
-      return url;
-    }
-  });
-
-  // Instantiate a loader
-  const loader = new GLTFLoader(manager);
-  const gltf = await loader.loadAsync(source);
-
-  const b = new Box3();
-  gltf.scene.traverse((object) => {
-    if (object instanceof THREE.Mesh) {
-      object.geometry.computeBoundingBox();
-      b.union(object.geometry.boundingBox);
-      object.frustumCulled = false;
-
-      if (object.material instanceof MeshStandardMaterial) {
-        // Minecraft somewhat incorrectly loads all textures in linear space,
-        // while GLTF assumes sRGB
-        const { alphaTest, alphaToCoverage, blending, vertexColors } =
-          object.material;
-        const map = object.material.map;
-        if (map) {
-          map.colorSpace = LinearSRGBColorSpace;
-          map.encoding = LinearEncoding;
-          map.needsUpdate = true;
-        }
-        object.material = new MeshPhongMaterial({
-          // Copy standard Material properties we actually use
-          alphaTest,
-          alphaToCoverage,
-          blending,
-          vertexColors,
-          map,
-        });
-      }
-    }
-  });
   const sceneBounds = new Box3();
-  sceneBounds.expandByObject(gltf.scene);
+  sceneBounds.expandByObject(group);
   const sceneCenter = sceneBounds.getCenter(new Vector3());
 
   const viewportWidth = viewportEl.offsetWidth;
   const viewportHeight = viewportEl.offsetHeight;
 
   const scene = new THREE.Scene();
+  addLevelLighting(scene);
+  scene.add(group);
 
-  // Meshes have pre-baked directional lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-  scene.add(ambientLight);
-  scene.add(gltf.scene);
+  // Add "diamond overlays"
+  const textureLoader = new TextureLoader();
+  const diamondTexture = await textureLoader.loadAsync(diamond);
+  diamondTexture.minFilter = THREE.NearestFilter;
+  diamondTexture.magFilter = THREE.NearestFilter;
+  diamondTexture.wrapS = THREE.ClampToEdgeWrapping;
+  diamondTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+  const diamondColoredTexture = await textureLoader.loadAsync(diamondColored);
+  diamondColoredTexture.minFilter = THREE.NearestFilter;
+  diamondColoredTexture.magFilter = THREE.NearestFilter;
+  diamondColoredTexture.wrapS = THREE.ClampToEdgeWrapping;
+  diamondColoredTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+  const diamondMaterial = new THREE.SpriteMaterial({
+    map: diamondTexture,
+    transparent: true,
+    depthTest: false,
+    sizeAttenuation: false,
+    fog: false,
+  });
+
+  for (const annotation of inWorldAnnotations) {
+    group.add(buildInWorldAnnotation(annotation));
+  }
+
+  for (const annotation of overlayAnnotations) {
+    const spriteScale = 1 / 4;
+
+    const annotationNodeBottom = new Sprite(diamondMaterial);
+    annotationNodeBottom.position.set(
+      annotation.position[0],
+      annotation.position[1],
+      annotation.position[2]
+    );
+    annotationNodeBottom.scale.set(spriteScale, spriteScale, 1);
+    annotationNodeBottom.userData.annotation = annotation;
+    group.add(annotationNodeBottom);
+
+    const diamondColoredMaterial = new THREE.SpriteMaterial({
+      map: diamondColoredTexture,
+      transparent: true,
+      depthTest: false,
+      sizeAttenuation: false,
+      fog: false,
+      color: annotation.color,
+    });
+    const annotationNodeTop = new Sprite(diamondColoredMaterial);
+    annotationNodeTop.position.set(
+      annotation.position[0],
+      annotation.position[1],
+      annotation.position[2]
+    );
+    annotationNodeTop.scale.set(spriteScale, spriteScale, 1);
+    annotationNodeTop.userData.annotation = annotation;
+    group.add(annotationNodeTop);
+  }
 
   const camera = new THREE.OrthographicCamera(
     -viewportWidth / 2,
@@ -175,27 +183,26 @@ async function initialize(
   );
 
   const lookVector = new Vector3(0, 0, -1);
-  const cc = new CameraSettings();
-  cc.rotationX = 30;
-  cc.rotationY = 225; // I don't know why everything is rotate +90°...
-  cc.rotationZ = 0;
   lookVector
-    .transformDirection(cc.getViewMatrix())
+    .transformDirection(getViewMatrix(cameraProps))
     .multiplyScalar(sceneBounds.max.length());
 
-  gltf.scene.position.copy(sceneCenter.negate());
-  scene.rotation.set(
-    CameraSettings.degToRad(30),
-    CameraSettings.degToRad(225),
-    0,
-    "ZXY"
-  );
+  group.position.copy(sceneCenter.negate());
 
-  const s = (1 / 0.625) * 16 * zoom;
-  camera.scale.set(1 / s, 1 / s, 1 / s);
+  camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom;
   camera.position.set(0, 0, 10);
-  camera.updateMatrix();
-  camera.updateMatrixWorld();
+  // We are rotating the camera position here instead of the scene,
+  // which is why the angles are in reverse
+  camera.position.applyEuler(
+    new Euler(
+      MathUtils.degToRad(-cameraProps.pitch),
+      MathUtils.degToRad(-cameraProps.yaw),
+      MathUtils.degToRad(-cameraProps.roll),
+      "YXZ"
+    )
+  );
+  camera.updateProjectionMatrix();
+  scene.add(camera);
 
   if (DEBUG) {
     const axesHelper = new THREE.AxesHelper(32);
@@ -211,7 +218,6 @@ async function initialize(
   let controls: OrbitControls | undefined;
   if (cameraControls) {
     controls = new OrbitControls(camera, viewportEl);
-    controls.zoom0 = zoom;
     controls.update();
   }
 
@@ -224,6 +230,8 @@ async function initialize(
   renderer.useLegacyLights = true;
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
+  const raycaster = new Raycaster();
+
   let disposed = false;
 
   const animate = function () {
@@ -233,6 +241,22 @@ async function initialize(
     requestAnimationFrame(animate);
 
     controls?.update();
+
+    const mousePos = mousePosRef.current ?? new Vector2();
+    raycaster.setFromCamera(mousePos, camera);
+    const intersections = raycaster.intersectObjects(scene.children);
+    let tooltipContent: ReactNode | undefined;
+    for (const intersection of intersections) {
+      const object = intersection.object;
+
+      const annotation = object.userData.annotation as Annotation;
+      if (annotation && annotation.content) {
+        tooltipContent = annotation.content;
+        break;
+      }
+    }
+    setTooltipObject(tooltipContent);
+
     // required if controls.enableDamping or controls.autoRotate are set to true
     renderer.render(scene, camera);
   };
@@ -246,21 +270,26 @@ async function initialize(
       viewportEl.removeChild(renderer.domElement);
       renderer.dispose();
       controls?.dispose();
+      setTooltipObject(undefined);
     }
   };
 }
 
 function ModelViewerInternal({
+  assetBaseUrl,
   src,
   placeholder,
-  cameraControls = false,
-  background,
+  interactive = false,
+  background = "transparent",
   width,
   height,
-  zoom,
+  inWorldAnnotations,
+  overlayAnnotations,
 }: ModelViewerProps) {
   const [error, setError] = useState();
   const [initialized, setInitialized] = useState(false);
+  const [tooltipObject, setTooltipObject] = useState<ReactNode | undefined>();
+  const mousePos = useRef(new Vector2());
   const viewportRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const viewportEl = viewportRef.current;
@@ -270,8 +299,19 @@ function ModelViewerInternal({
 
     let disposed = false;
     let disposer: undefined | (() => void) = undefined;
+    const abortController = new AbortController();
     setInitialized(false);
-    initialize(src, viewportEl, zoom, cameraControls)
+    initialize(
+      assetBaseUrl,
+      src,
+      viewportEl,
+      interactive,
+      inWorldAnnotations,
+      overlayAnnotations,
+      mousePos,
+      setTooltipObject,
+      abortController.signal
+    )
       .then((f) => {
         if (disposed) {
           f();
@@ -280,47 +320,81 @@ function ModelViewerInternal({
           disposer = f;
         }
       })
-      .catch((err) => setError(err));
+      .catch((err) => {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        setError(err);
+      });
 
     return () => {
       disposed = true;
+      abortController.abort();
       if (disposer) {
         disposer();
       }
     };
-  }, [cameraControls, src, zoom]);
+  }, [interactive, src, overlayAnnotations, assetBaseUrl, inWorldAnnotations]);
+
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const canvas = viewportRef.current?.querySelector("canvas");
+    if (!canvas) {
+      return;
+    }
+
+    const clientRect = canvas.getBoundingClientRect();
+    let x = (e.clientX - clientRect.x) / clientRect.width;
+    let y = (e.clientY - clientRect.y) / clientRect.height;
+
+    x = x * 2 - 1;
+    y = -(y * 2 - 1);
+
+    mousePos.current = new Vector2(x, y);
+  }
+
+  function onMouseLeave() {
+    mousePos.current = new Vector2(-10000, -10000);
+    setTooltipObject(null);
+  }
 
   return (
     <>
-      {error && <ErrorText>{error}</ErrorText>}
-      <div
-        className={css.root}
-        style={{
-          background,
-          width: guiScaledDimension(width),
-          height: guiScaledDimension(height),
-        }}
+      {error && <ErrorText>{String(error)}</ErrorText>}
+      <MinecraftTooltip
+        content={tooltipObject}
+        visible={Boolean(tooltipObject)}
       >
-        {!initialized && (
-          <img
-            src={placeholder}
+        <div
+          className={css.root}
+          style={{
+            background,
+            width: guiScaledDimension(width),
+            height: guiScaledDimension(height),
+          }}
+          onMouseMove={onMouseMove}
+          onMouseLeave={onMouseLeave}
+        >
+          {!initialized && (
+            <img
+              src={placeholder}
+              style={{
+                width: guiScaledDimension(width),
+                height: guiScaledDimension(height),
+              }}
+              alt="Scene placeholder"
+            />
+          )}
+
+          <div
+            className={css.viewport}
+            ref={viewportRef}
             style={{
               width: guiScaledDimension(width),
               height: guiScaledDimension(height),
             }}
-            alt="Scene placeholder"
-          />
-        )}
-
-        <div
-          className={css.viewport}
-          ref={viewportRef}
-          style={{
-            width: guiScaledDimension(width),
-            height: guiScaledDimension(height),
-          }}
-        ></div>
-      </div>
+          ></div>
+        </div>
+      </MinecraftTooltip>
     </>
   );
 }

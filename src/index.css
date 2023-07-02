@@ -84,6 +84,8 @@ hr {
     font-weight: 400;
 
     color-scheme: light dark;
+
+    --minecraft-font: Pixeloid Sans, sans-serif;
 }
 
 :root > * {
@@ -105,25 +107,25 @@ h1, h2, h3, h4, h5, h6 {
 
 th {
     font-weight: bold;
-    font-family: Pixeloid Sans, sans-serif;
+    font-family: var(--minecraft-font);
 }
 
 h1 {
     border-bottom: 1px solid var(--color-header1-separator);
     font-size: 1.3rem;
     color: white;
-    font-family: Pixeloid Sans, sans-serif;
+    font-family: var(--minecraft-font);
 }
 
 h2 {
     border-bottom: 1px solid var(--color-header2-separator);
     font-size: 1.1rem;
-    font-family: Pixeloid Sans, sans-serif;
+    font-family: var(--minecraft-font);
 }
 
 h3 {
     font-size: 1rem;
-    font-family: Pixeloid Sans, sans-serif;
+    font-family: var(--minecraft-font);
 }
 
 h4 {
@@ -158,4 +160,9 @@ a:hover {
     html {
 
     }
+}
+
+.item-icon {
+    width: calc(16px * var(--gui-scale));
+    height: calc(16px * var(--gui-scale));
 }

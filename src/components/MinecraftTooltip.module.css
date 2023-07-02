@@ -1,0 +1,48 @@
+
+.root {
+    position: relative;
+
+    border-image-source: linear-gradient(rgba(80, 0, 255, 0.31), rgba(40, 0, 127, 0.31));
+    border-style: solid;
+    border-width: calc(1px * var(--gui-scale));
+    border-image-slice: 1;
+    background: rgba(16, 0, 16, 0.94);
+    box-sizing: border-box;
+    padding: calc(2px * var(--gui-scale));
+    line-height: 1;
+}
+
+/* Strip the wrapping paragraph of margins */
+.root > :global(.tippy-content) > div > p {
+    margin: 0;
+}
+.root :global(.item-icon) {
+    width: calc(24px * var(--gui-scale));
+    height: calc(24px * var(--gui-scale));
+}
+
+.root::before {
+    content: "";
+    position: absolute;
+    border-top: calc(1px * var(--gui-scale)) solid rgba(16, 0, 16, 0.94);
+    border-bottom: calc(1px * var(--gui-scale)) solid rgba(16, 0, 16, 0.94);
+    box-sizing: content-box;
+    top: calc(-2px * var(--gui-scale));
+    left: calc(-1px * var(--gui-scale));
+    right: calc(-1px * var(--gui-scale));
+    bottom: calc(-2px * var(--gui-scale));
+    pointer-events: none;
+}
+
+.root::after {
+    content: "";
+    position: absolute;
+    border-left: calc(1px * var(--gui-scale)) solid rgba(16, 0, 16, 0.94);
+    border-right: calc(1px * var(--gui-scale)) solid rgba(16, 0, 16, 0.94);
+    box-sizing: content-box;
+    top: calc(-1px * var(--gui-scale));
+    left: calc(-2px * var(--gui-scale));
+    right: calc(-2px * var(--gui-scale));
+    bottom: calc(-1px * var(--gui-scale));
+    pointer-events: none;
+}

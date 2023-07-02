@@ -8,7 +8,8 @@ function ItemImage({ id, scale }: { id: string; scale: number }) {
       width={32 * scale}
       height={32 * scale}
       src={guide.baseUrl + itemInfo.icon}
-      alt={itemInfo.displayName}
+      alt=""
+      aria-description={itemInfo.displayName}
     />
   );
 }

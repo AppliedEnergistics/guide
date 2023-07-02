@@ -1,12 +1,9 @@
 import { PropsWithChildren } from "react";
 import ItemIcon from "./ItemIcon";
-import Tippy from "@tippyjs/react";
 import css from "./ItemTooltip.module.css";
 import "tippy.js/dist/svg-arrow.css";
-import { roundArrow, inlinePositioning } from "tippy.js";
 import { ItemInfo } from "../data/Guide.ts";
-
-const tippyPlugins = [inlinePositioning];
+import MinecraftTooltip from "./MinecraftTooltip.tsx";
 
 export type TooltipMode = "text" | "icon";
 
@@ -44,14 +41,12 @@ function ItemName({ item }: { item: ItemInfo }) {
 /**
  * Displays the content of an item tooltip.
  */
-function ItemTooltipContent({ item, mode }: ItemTooltipProps) {
-  mode ??= "icon";
-
+function ItemTooltipContent({ item, mode = "icon" }: ItemTooltipProps) {
   return (
-    <div className={css.itemTooltip}>
+    <>
       {mode === "icon" ? <ItemIcon id={item.id} nolink /> : null}
       {mode === "text" ? <ItemName item={item} /> : null}
-    </div>
+    </>
   );
 }
 
@@ -63,15 +58,12 @@ function ItemTooltip({
   ...rest
 }: PropsWithChildren<ItemTooltipProps>) {
   return (
-    <Tippy
+    <MinecraftTooltip
       content={<ItemTooltipContent {...rest} />}
-      className={css.itemTooltip}
-      arrow={roundArrow}
-      plugins={tippyPlugins}
       inlinePositioning={true}
     >
       <span>{children}</span>
-    </Tippy>
+    </MinecraftTooltip>
   );
 }
 

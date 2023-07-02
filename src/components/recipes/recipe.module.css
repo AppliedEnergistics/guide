@@ -6,8 +6,6 @@
   margin-top: 1rem;
 }
 
-
-
 /**
  * Try to be responsive on mobile
  */
@@ -19,11 +17,6 @@
   .recipeContainer > :first-child {
     display: flex;
     justify-content: center;
-  }
-
-  .item-icon {
-    max-width: 10vw;
-    max-height: 10vw;
   }
 
   .recipeContainer .recipeArrow {

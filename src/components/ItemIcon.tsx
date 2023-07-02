@@ -19,8 +19,9 @@ function ItemIcon({ id, nolink }: ItemIconProps) {
   const icon = (
     <img
       src={guide.baseUrl + itemInfo.icon}
-      alt={itemInfo.displayName}
-      className="item-icon"
+      alt=""
+      aria-description={itemInfo.displayName}
+      className={"item-icon"}
     />
   );
 

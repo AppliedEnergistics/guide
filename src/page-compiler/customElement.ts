@@ -11,13 +11,20 @@ import Recipe from "../components/recipes/Recipe.tsx";
 import RecipeFor from "../components/recipes/RecipeFor.tsx";
 import Row from "../components/Row.tsx";
 import Column from "../components/Column.tsx";
-import GameScene from "../components/GameScene.tsx";
 import compileError from "./compileError.tsx";
+import compileGameScene from "./compileGameScene.tsx";
+import { getAttributes } from "./mdxUtils.ts";
+
+type CustomElementCompiler = (
+  context: CompileContext,
+  node: MdxJsxFlowElement | MdxJsxTextElement
+) => ReactNode;
 
 const components: Record<
   string,
   FunctionComponent<any> | ComponentClass<any> | string
 > = {
+  a: "a",
   br: "br",
   div: "div",
   BlockImage,
@@ -29,40 +36,24 @@ const components: Record<
   RecipeFor,
   Row,
   Column,
-  GameScene,
 };
 
-/**
- * Converts a list of MDX attributes to concrete props for a component.
- */
-function getAttributes(
-  node: MdxJsxFlowElement | MdxJsxTextElement
-): Record<string, any> {
-  const entries = node.attributes
-    .map((attr): [string, any] | null => {
-      if (attr.type == "mdxJsxAttribute") {
-        const name = attr.name;
-        const value = attr.value;
-        if (typeof value === "string" || !value) {
-          return [name, value];
-        } else {
-          // This is poor mans JavaScript primitive parsing, while not allowing code
-          return [name, JSON.parse(value.value)];
-        }
-      }
-      console.error("Attribute not supported: %o", node);
-      return null;
-    })
-    .filter((o) => o)
-    .map((o) => o as [string, any]);
-  return Object.fromEntries(entries);
-}
+const customCompilers: Record<string, CustomElementCompiler> = {
+  GameScene: compileGameScene,
+};
 
 export default function compileCustomElement(
   context: CompileContext,
   node: MdxJsxFlowElement | MdxJsxTextElement
 ): ReactNode {
   const name = node.name ?? "";
+
+  // Favor custom compilers
+  const customCompiler = customCompilers[name];
+  if (customCompiler) {
+    return customCompiler(context, node);
+  }
+
   const reactComponent = components[name];
   if (!reactComponent) {
     return compileError(node, "Unknown tag");

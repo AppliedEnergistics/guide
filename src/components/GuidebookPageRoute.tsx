@@ -9,20 +9,7 @@ export type GuidebookPageRouteProps = {
 
 function GuidebookPageRoute({ pageId, page }: GuidebookPageRouteProps) {
   const guide = useGuide();
-  const pageContent = useMemo(
-    () => compilePage(guide, pageId, page),
-    [guide, pageId, page]
-  );
-
-  return (
-    <>
-      {pageContent}
-      <details>
-        <summary>Page AST</summary>
-        <pre>{JSON.stringify(page.astRoot, null, 2)}</pre>
-      </details>
-    </>
-  );
+  return useMemo(() => compilePage(guide, pageId, page), [guide, pageId, page]);
 }
 
 export default GuidebookPageRoute;
