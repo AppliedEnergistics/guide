@@ -21,7 +21,7 @@ function GuideShell() {
         <Outlet />
       </article>
       <div className={css.versionPicker}>
-        Minecraft {guide.version.gameVersion} [<a href="#/">change</a>]
+        Minecraft {guide.gameVersion} [<a href="#/">change</a>]
       </div>
     </main>
   );

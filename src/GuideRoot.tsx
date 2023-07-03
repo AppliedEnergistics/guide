@@ -9,7 +9,17 @@ import GuidebookPageRoute from "./components/GuidebookPageRoute.tsx";
 import GuideShell from "./GuideShell.tsx";
 
 function createRouter(guide: Guide) {
-  const basename = "/" + guide.version.gameVersion;
+  const basename = "/" + guide.gameVersion;
+
+  let indexRoute: RouteObject | undefined = undefined;
+  const indexPageId = guide.defaultNamespace + ":index.md";
+  const indexPage = guide.index.pages[indexPageId];
+  if (indexPage) {
+    indexRoute = {
+      element: <GuidebookPageRoute pageId={indexPageId} page={indexPage} />,
+      index: true,
+    };
+  }
 
   const pageRoutes = Object.entries(guide.index.pages).map(([pageId, page]) => {
     const index = pageId === guide.defaultNamespace + ":index.md";
@@ -26,7 +36,7 @@ function createRouter(guide: Guide) {
       {
         path: "/",
         element: <GuideShell />,
-        children: pageRoutes,
+        children: [...(indexRoute ? [indexRoute] : []), ...pageRoutes],
       },
     ],
     {

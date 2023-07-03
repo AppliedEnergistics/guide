@@ -23,10 +23,10 @@ export default class TextureManager {
 
   constructor(private readonly assetBaseUrl: string) {}
 
-  async getImage(url: string): Promise<ImageBitmap> {
+  async getImage(url: string, builtIn = false): Promise<ImageBitmap> {
     let image = this.images[url];
     if (!this.enableCaching || !image) {
-      const fullUrl = this.assetBaseUrl + "/" + url;
+      const fullUrl = builtIn ? url : this.assetBaseUrl + "/" + url;
       console.debug("Loading image %s", fullUrl);
       try {
         image = await this.loader.loadAsync(fullUrl);
@@ -44,10 +44,11 @@ export default class TextureManager {
   async get(
     url: string,
     linearFiltering: boolean,
-    mipmaps: boolean
+    mipmaps: boolean,
+    builtIn = false
   ): Promise<Texture> {
     // Acquire the image first
-    const image = await this.getImage(url);
+    const image = await this.getImage(url, builtIn);
 
     const magFilter = linearFiltering ? LinearFilter : NearestFilter;
     let minFilter: Texture["minFilter"];

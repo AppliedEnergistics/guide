@@ -1,5 +1,4 @@
 import { createContext, useContext } from "react";
-import { GuideVersion } from "./GuideVersionIndex.ts";
 import { Root as MdAstRoot } from "mdast";
 
 export interface RecipeInfo {
@@ -111,7 +110,8 @@ export class Guide {
 
   constructor(
     baseUrl: string,
-    readonly version: GuideVersion,
+    readonly gameVersion: string,
+    readonly modVersion: string,
     readonly index: GuideIndex
   ) {
     this.index = index;

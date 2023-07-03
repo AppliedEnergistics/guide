@@ -10,14 +10,15 @@ export default async function buildOverlayAnnotation(
   annotation: OverlayAnnotation
 ): Promise<Object3D> {
   // Add "diamond overlays"
-  const diamondTexture = await textureManager.get(diamond, false, false);
+  const diamondTexture = await textureManager.get(diamond, false, false, true);
   diamondTexture.wrapS = THREE.ClampToEdgeWrapping;
   diamondTexture.wrapT = THREE.ClampToEdgeWrapping;
 
   const diamondColoredTexture = await textureManager.get(
     diamondColored,
     false,
-    false
+    false,
+    true
   );
   diamondColoredTexture.wrapS = THREE.ClampToEdgeWrapping;
   diamondColoredTexture.wrapT = THREE.ClampToEdgeWrapping;

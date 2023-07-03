@@ -1,0 +1,80 @@
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.indicator {
+    width: 200px;
+    height: 200px;
+    background-image: url(../assets/loading_bg.png);
+    background-size: contain;
+    image-rendering: smooth;
+    position: relative;
+}
+
+.indicator::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    mask-image: url(../assets/loading_mask.png);
+    mask-size: contain;
+    background-image: url(../assets/loading_mask.png);
+    background-size: contain;
+    image-rendering: smooth;
+    background-blend-mode: multiply;
+
+    animation: controller-lights 2.5s linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes controller-lights {
+    100%, 0% {
+        background-color: #457BFA;
+    }
+    8% {
+        background-color: #9B44FC;
+    }
+    16% {
+        background-color: #F544FC;
+    }
+    25% {
+        background-color: #F947DA;
+    }
+    33% {
+        background-color: #F9477D;
+    }
+    41% {
+        background-color: #FC9B44;
+    }
+    50% {
+        background-color: #FCF944;
+    }
+    58% {
+        background-color: #D6F947;
+    }
+    66% {
+        background-color: #7DF947;
+    }
+    75% {
+        background-color: #44FC9F;
+    }
+    83% {
+        background-color: #44FCF9;
+    }
+    91% {
+        background-color: #47D6F9;
+    }
+}
+
+.message {
+    margin-top: 1em;
+    color: #666666;
+}

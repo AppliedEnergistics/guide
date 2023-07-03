@@ -28,8 +28,8 @@
 }
 
 .minecraftLogo {
-    background: url(../../assets/minecraft-logo.png);
-    background-size: cover;
+    background: url(../../assets/minecraft-logo.webp);
+    background-size: contain;
     width: 100px;
     height: 100px;
 

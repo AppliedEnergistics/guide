@@ -26,20 +26,22 @@ export default {
                 const versionIndexContent = await indexResponse.json();
                 console.info("Content of %s: %o", indexFile, versionIndexContent);
                 versions.push({
-                    ...versionIndexContent,
+                    format: versionIndexContent.format,
+                    generated: versionIndexContent.generated,
+                    gameVersion: versionIndexContent.gameVersion,
+                    modVersion: versionIndexContent.modVersion,
                     // This is where the actual data lives in V1 guides
-                    url: 'https://guide-assets.appliedenergistics.org/' + prefix + "guide.json.gz"
+                    url: 'https://guide-assets.appliedenergistics.org/' + indexFile
                 })
             } catch (e) {
                 console.error("Failed to process index file %s", indexFile);
             }
         }
 
-        console.info("Overall version info: %o", versions);
-
         const indexJsonContent = JSON.stringify({
             versions
         });
+        console.info("Overall version info: %s", indexJsonContent);
         bucket.put("index.json", indexJsonContent, {
             httpMetadata: {
                 contentType: 'application/json',

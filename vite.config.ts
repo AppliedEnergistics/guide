@@ -1,23 +1,27 @@
 import { defineConfig, loadEnv, PluginOption } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import express from "express";
+import fs from "node:fs";
 
 const serveLocalGuideAssets = (localGuidePath: string) => ({
   name: "configure-server",
   configureServer(server) {
     console.info("Enabling serving local guide from %s", localGuidePath);
 
+    // Auto-generate an index-file based on the assets the actually exist
     server.middlewares.use("/guide-assets/index.json", (req, res) => {
       res.setHeader("Content-Type", "application/json");
+
+      const version = JSON.parse(
+        fs.readFileSync(localGuidePath + "/index.json", { encoding: "utf-8" })
+      );
+
       res.end(
         JSON.stringify({
           versions: [
             {
-              format: 1,
-              generated: 1687699907509,
-              gameVersion: "1.20.1",
-              modVersion: "LOCAL",
-              url: "/guide-assets/minecraft-1.20.1/guide.json.gz",
+              ...version,
+              url: "/guide-assets/minecraft-1.20.1/index.json",
             },
           ],
         })

@@ -15,7 +15,7 @@ function getSelectedGuideVersion(
   versionIndex: GuideVersionIndex,
   fragment: string
 ): GuideVersion | undefined {
-  const m = fragment.match(/^#\/([^/]+)\//);
+  const m = fragment.match(/^#\/([^/]+)/);
   if (!m) {
     console.debug("No game present in fragment: '%s'", fragment);
     return undefined;

@@ -240,7 +240,7 @@ function ModelViewerInternal({
   const [error, setError] = useState();
   const [initialized, setInitialized] = useState(false);
   const [tooltipObject, setTooltipObject] = useState<ReactNode | undefined>();
-  const mousePos = useRef(new Vector2());
+  const mousePos = useRef<Vector2 | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const viewportEl = viewportRef.current;
@@ -311,7 +311,7 @@ function ModelViewerInternal({
   }
 
   function onMouseLeave() {
-    mousePos.current = new Vector2(-10000, -10000);
+    mousePos.current = null;
     setTooltipObject(null);
   }
 
