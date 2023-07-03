@@ -29,6 +29,10 @@ export default class TextureManager {
       const fullUrl = builtIn ? url : this.assetBaseUrl + "/" + url;
       console.debug("Loading image %s", fullUrl);
       try {
+        this.loader.setOptions({
+          // Normal PNGs need to be flipped if they weren't exported from textures
+          imageOrientation: builtIn ? "flipY" : "from-image",
+        } satisfies ImageBitmapOptions);
         image = await this.loader.loadAsync(fullUrl);
       } catch (e) {
         console.error("Failed to load image %s", fullUrl);

@@ -1,8 +1,8 @@
 import TextureManager from "./TextureManager.ts";
 import { OverlayAnnotation } from "./ModelViewerInternal.tsx";
+import * as THREE from "three";
 import { Group, Object3D, Sprite } from "three";
 import diamond from "../../assets/diamond.png";
-import * as THREE from "three";
 import diamondColored from "../../assets/diamond_colored.png";
 
 export default async function buildOverlayAnnotation(
@@ -43,6 +43,7 @@ export default async function buildOverlayAnnotation(
   );
   annotationNodeBottom.scale.set(spriteScale, spriteScale, 1);
   annotationNodeBottom.userData.annotation = annotation;
+  annotationNodeBottom.renderOrder = 999999;
   group.add(annotationNodeBottom);
 
   const diamondColoredMaterial = new THREE.SpriteMaterial({
@@ -59,6 +60,7 @@ export default async function buildOverlayAnnotation(
     annotation.position[1],
     annotation.position[2]
   );
+  annotationNodeTop.renderOrder = 999999;
   annotationNodeTop.scale.set(spriteScale, spriteScale, 1);
   annotationNodeTop.userData.annotation = annotation;
   group.add(annotationNodeTop);

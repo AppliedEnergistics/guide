@@ -4,7 +4,6 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  DoubleSide,
   GreaterDepth,
   Group,
   Mesh,
@@ -330,14 +329,6 @@ export function buildInWorldAnnotation(annotation: InWorldAnnotation) {
 
   const group = new Group();
 
-  if (annotation.alwaysOnTop) {
-    console.info("ALWAYS ON TOP");
-    // TODO color.darker(50).setAlpha(color.alpha() * 0.5);
-    // TODO if (annotation.isHovered()) {
-    // TODO   color.lighter(50);
-    // TODO }
-  }
-
   // Don't render occlusion for always-on-top annotations
   if (!annotation.alwaysOnTop) {
     const color = new Color(annotation.color);
@@ -359,7 +350,7 @@ export function buildInWorldAnnotation(annotation: InWorldAnnotation) {
     color: annotation.color,
     transparent: true,
     vertexColors: false,
-    side: DoubleSide,
+    depthTest: !annotation.alwaysOnTop,
   });
   const mesh = new Mesh(geometry, material);
   group.add(mesh);
