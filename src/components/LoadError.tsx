@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from "react";
 import { LoadResultError } from "../data/useLoadEffect.ts";
+import css from "./Loading.module.css";
 
 export type LoadErrorProps = {
   operation: string;
@@ -19,10 +20,13 @@ function LoadError({ operation, result: { error, retry } }: LoadErrorProps) {
   const formattedError = useMemo(() => formatError(error), [error]);
 
   return (
-    <div>
-      <div>{operation} failed</div>
-      <div>{formattedError}</div>
-      <button onClick={() => retry()}>Retry</button>
+    <div className={css.container}>
+      <div className={css.indicator + " " + css.errorIndicator} />
+      <div className={css.message}>
+        <div className={css.errorMessage}>{operation} failed</div>
+        <div className={css.errorDetails}>{formattedError}</div>
+        <button onClick={() => retry()}>Retry</button>
+      </div>
     </div>
   );
 }
