@@ -13,7 +13,9 @@
     height: 200px;
     background-image: url(../assets/loading_bg.png);
     background-size: contain;
-    image-rendering: smooth;
+    background-position: center;
+    background-repeat: no-repeat;    
+    image-rendering: unset;
     position: relative;
 
     filter: drop-shadow(11px 11px 4px rgba(0, 0, 0, 0.5));
@@ -28,9 +30,17 @@
     bottom: 0;
     mask-image: url(../assets/loading_mask.png);
     mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    -webkit-mask-image: url(../assets/loading_mask.png);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
     background-image: url(../assets/loading_mask.png);
     background-size: contain;
-    image-rendering: smooth;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: unset;
     background-blend-mode: multiply;
 
     animation: controller-lights 2.5s linear;
