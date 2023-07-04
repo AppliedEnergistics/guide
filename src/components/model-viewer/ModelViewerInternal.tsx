@@ -116,8 +116,16 @@ async function initialize(
   overlayAnnotations: OverlayAnnotation[] | undefined = [],
   mousePosRef: RefObject<Vector2>,
   setTooltipObject: (object: ReactNode | undefined) => void,
-  abortSignal: AbortSignal
+  abortSignal: AbortSignal,
+  originalWidth: number
 ) {
+  const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    premultipliedAlpha: false,
+  });
+  renderer.useLegacyLights = true;
+  renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
   const textureManager = new TextureManager(assetBaseUrl);
 
   const { cameraProps, group } = await loadScene(
@@ -147,9 +155,6 @@ async function initialize(
     group.add(grid);
   }
 
-  const viewportWidth = viewportEl.offsetWidth;
-  const viewportHeight = viewportEl.offsetHeight;
-
   const scene = new THREE.Scene();
   addLevelLighting(scene);
   scene.add(group);
@@ -166,17 +171,21 @@ async function initialize(
   camera.near = 0;
   camera.far = 30000;
 
-  const updateCamera = (width: number, height: number) => {
+  const updateViewportSize = (width: number, height: number) => {
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    // We only scale down, not up
+    const scaling = Math.min(1, width / (originalWidth * 3));
+    console.info("Scaling: %o", scaling);
+    camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom * scaling;
     camera.left = -width / 2;
     camera.right = width / 2;
     camera.top = height / 2;
     camera.bottom = -height / 2;
+    camera.updateProjectionMatrix();
   };
-  updateCamera(viewportWidth, viewportHeight);
+  updateViewportSize(viewportEl.offsetWidth, viewportEl.offsetHeight);
 
-  // group.position.copy(sceneCenter.negate());
-
-  camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom;
   camera.position.set(0, 0, 15);
   // We are rotating the camera position here instead of the scene,
   // which is why the angles are in reverse
@@ -210,15 +219,7 @@ async function initialize(
     camera.lookAt(new Vector3());
   }
 
-  const renderer = new THREE.WebGLRenderer({
-    alpha: true,
-    premultipliedAlpha: false,
-  });
-  viewportEl.append(renderer.domElement);
-  renderer.setSize(viewportWidth, viewportHeight);
-  renderer.useLegacyLights = true;
-  renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-
+  // Declare a resize observer to automatically resize the viewport
   let resizeObserver: ResizeObserver | undefined;
   if (typeof ResizeObserver !== "undefined") {
     resizeObserver = new ResizeObserver((entries) => {
@@ -226,8 +227,16 @@ async function initialize(
         if (entry.contentBoxSize) {
           const { inlineSize: width, blockSize: height } =
             entry.contentBoxSize[0];
-          renderer.setSize(width, height);
-          updateCamera(width, height);
+
+          updateViewportSize(width, height);
+
+          if (cameraControls) {
+            controls?.dispose();
+            controls = new OrbitControls(camera, viewportEl);
+            controls.update();
+          } else {
+            camera.lookAt(new Vector3());
+          }
         }
       }
     });
@@ -257,7 +266,13 @@ async function initialize(
     }
   };
 
-  animate();
+  viewportEl.append(renderer.domElement);
+
+  try {
+    animate();
+  } catch (e) {
+    console.error("Failed to render %s", source, e);
+  }
 
   return () => {
     if (!disposed) {
@@ -310,7 +325,8 @@ function ModelViewerInternal({
       overlayAnnotations,
       mousePos,
       setTooltipObject,
-      abortController.signal
+      abortController.signal,
+      width
     )
       .then((f) => {
         if (disposed) {
@@ -340,7 +356,14 @@ function ModelViewerInternal({
         disposer();
       }
     };
-  }, [interactive, src, overlayAnnotations, assetBaseUrl, inWorldAnnotations]);
+  }, [
+    interactive,
+    src,
+    overlayAnnotations,
+    assetBaseUrl,
+    inWorldAnnotations,
+    width,
+  ]);
 
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const canvas = viewportRef.current?.querySelector("canvas");
