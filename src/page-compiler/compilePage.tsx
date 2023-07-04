@@ -9,6 +9,7 @@ import compileImage from "./image.tsx";
 import compileError from "./compileError.tsx";
 import compileList from "./list.tsx";
 import compileListItem from "./listItem.tsx";
+import compileTable from "./table.tsx";
 
 export type CompileContext = {
   guide: Guide;
@@ -121,8 +122,8 @@ function compileContent(
       return compileList(context, node);
     case "listItem":
       return compileListItem(context, node, parent);
-    //case "table":
-    //  break;
+    case "table":
+      return compileTable(context, node);
     // Text- and Block-Level JSX or HTML Element
     case "mdxJsxFlowElement":
     case "mdxJsxTextElement":

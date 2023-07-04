@@ -176,7 +176,6 @@ async function initialize(
     renderer.setPixelRatio(window.devicePixelRatio);
     // We only scale down, not up
     const scaling = Math.min(1, width / (originalWidth * 3));
-    console.info("Scaling: %o", scaling);
     camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom * scaling;
     camera.left = -width / 2;
     camera.right = width / 2;
