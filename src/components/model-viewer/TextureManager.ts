@@ -35,7 +35,7 @@ export default class TextureManager {
         } satisfies ImageBitmapOptions);
         image = await this.loader.loadAsync(fullUrl);
       } catch (e) {
-        console.error("Failed to load image %s", fullUrl);
+        console.error("Failed to load image %s", fullUrl, e);
         return createImageBitmap(missingImageData);
       }
       this.images[url] = image;
