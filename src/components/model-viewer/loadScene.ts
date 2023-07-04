@@ -4,6 +4,7 @@ import { Group, Mesh } from "three";
 import TextureManager from "./TextureManager.ts";
 import loadGeometry from "./loadGeometry.ts";
 import loadMaterial from "./loadMaterial.ts";
+import decompress from "../../decompress.ts";
 
 type LoadedScene = {
   group: Group;
@@ -19,9 +20,8 @@ export type CameraProps = {
 
 async function decompressResponse(response: Response) {
   const blob = await response.blob();
-  const ds = new DecompressionStream("gzip");
-  const decompressedStream = blob.stream().pipeThrough(ds);
-  const sceneContent = await new Response(decompressedStream).arrayBuffer();
+  response = await decompress(blob);
+  const sceneContent = await response.arrayBuffer();
 
   console.debug(
     "Loaded %s, %d byte compressed, %d byte uncompressed",
@@ -79,5 +79,6 @@ export default async function loadScene(
     roll: expCamera.roll(),
     zoom: expCamera.zoom(),
   };
+
   return { cameraProps, group };
 }

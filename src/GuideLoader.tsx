@@ -3,6 +3,7 @@ import { PropsWithChildren, useMemo } from "react";
 import useLoadEffect from "./data/useLoadEffect.ts";
 import { Guide, GuideProvider } from "./data/Guide.ts";
 import LoadState from "./components/LoadState.tsx";
+import decompress from "./decompress.ts";
 
 export type GuideLoaderProps = PropsWithChildren<{
   version: GuideVersion;
@@ -26,18 +27,16 @@ async function loadGuideFromResponseV1(
 ): Promise<Guide> {
   const guideDataUrl = new URL(metadata.guideDataPath, metadataUrl);
 
-  const response = await fetch(guideDataUrl, {
+  let response = await fetch(guideDataUrl, {
     cache: "force-cache",
   });
 
   // Decompress
-  const blob = await response.blob();
-  const ds = new DecompressionStream("gzip");
-  const decompressedStream = blob.stream().pipeThrough(ds);
-  const jsonBody = await new Response(decompressedStream).json();
+  response = await decompress(response);
+  const jsonBody = await response.json();
 
   // Use the directory we loaded the guide from to load further assets
-  const baseUrl = new URL("./", response.url).toString();
+  const baseUrl = new URL("./", guideDataUrl).toString();
   console.info("Deducing base URL %s for guide data %s", baseUrl, response.url);
   return new Guide(
     baseUrl,
@@ -78,7 +77,7 @@ function GuideLoader({ version, children }: GuideLoaderProps) {
   } else {
     return (
       <LoadState
-        operation={`Loading Guide for ${version.gameVersion}`}
+        operation={`Guide for ${version.gameVersion}`}
         result={loadResult}
       />
     );

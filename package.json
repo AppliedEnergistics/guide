@@ -12,6 +12,7 @@
   "dependencies": {
     "@tippyjs/react": "^4.2.6",
     "flatbuffers": "^23.5.26",
+    "pako": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.13.0",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/mdast": "^3.0.11",
     "@types/node": "^20.3.3",
+    "@types/pako": "^2.0.0",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
     "@types/three": "^0.152.1",
