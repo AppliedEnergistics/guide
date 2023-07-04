@@ -162,14 +162,17 @@ async function initialize(
     group.add(await buildOverlayAnnotation(textureManager, annotation));
   }
 
-  const camera = new THREE.OrthographicCamera(
-    -viewportWidth / 2,
-    viewportWidth / 2,
-    viewportHeight / 2,
-    -viewportHeight / 2,
-    0,
-    30000
-  );
+  const camera = new THREE.OrthographicCamera();
+  camera.near = 0;
+  camera.far = 30000;
+
+  const updateCamera = (width: number, height: number) => {
+    camera.left = -width / 2;
+    camera.right = width / 2;
+    camera.top = height / 2;
+    camera.bottom = -height / 2;
+  };
+  updateCamera(viewportWidth, viewportHeight);
 
   // group.position.copy(sceneCenter.negate());
 
@@ -221,8 +224,10 @@ async function initialize(
     resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.contentBoxSize) {
-          const size = entry.contentBoxSize[0];
-          renderer.setSize(size.inlineSize, size.blockSize);
+          const { inlineSize: width, blockSize: height } =
+            entry.contentBoxSize[0];
+          renderer.setSize(width, height);
+          updateCamera(width, height);
         }
       }
     });
