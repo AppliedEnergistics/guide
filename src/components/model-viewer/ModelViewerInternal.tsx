@@ -10,6 +10,7 @@ import {
   Box3,
   Camera,
   Euler,
+  GridHelper,
   LineBasicMaterial,
   MathUtils,
   Raycaster,
@@ -30,6 +31,15 @@ import buildOverlayAnnotation from "./buildOverlayAnnotations.ts";
 import TextureManager from "./TextureManager.ts";
 
 const DEBUG = false;
+
+// Add our CSS variables
+declare module "csstype" {
+  interface Properties {
+    "--modelviewer-width"?: string;
+    "--modelviewer-height"?: string;
+    "--modelviewer-aspect-ratio"?: number;
+  }
+}
 
 export type Annotation = OverlayAnnotation | InWorldAnnotation;
 
@@ -122,6 +132,16 @@ async function initialize(
   const sceneCenter = sceneBounds.getCenter(new Vector3());
   group.position.copy(sceneCenter.clone().negate());
 
+  // Add a plane for orientation
+  if (cameraControls) {
+    const grid = new GridHelper(20, 20, 0xffffffff, 0xffffffff);
+    grid.material = new LineBasicMaterial({
+      transparent: true,
+      opacity: 0.5,
+    });
+    group.add(grid);
+  }
+
   const viewportWidth = viewportEl.offsetWidth;
   const viewportHeight = viewportEl.offsetHeight;
 
@@ -191,6 +211,21 @@ async function initialize(
   renderer.useLegacyLights = true;
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
+  let resizeObserver: ResizeObserver | undefined;
+  if (typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentBoxSize) {
+          const size = entry.contentBoxSize[0];
+          renderer.setSize(size.inlineSize, size.blockSize);
+        }
+      }
+    });
+    resizeObserver.observe(viewportEl, {
+      box: "content-box",
+    });
+  }
+
   let disposed = false;
 
   const animate = function () {
@@ -218,6 +253,9 @@ async function initialize(
     if (!disposed) {
       console.debug("Disposing model viewer for %s", source);
       disposed = true;
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       viewportEl.removeChild(renderer.domElement);
       renderer.dispose();
       controls?.dispose();
@@ -326,31 +364,16 @@ function ModelViewerInternal({
           className={css.root}
           style={{
             background,
-            width: guiScaledDimension(width),
-            height: guiScaledDimension(height),
+            "--modelviewer-width": guiScaledDimension(width),
+            "--modelviewer-height": guiScaledDimension(height),
+            "--modelviewer-aspect-ratio": width / height,
           }}
           onMouseMove={onMouseMove}
           onMouseLeave={onMouseLeave}
         >
-          {!initialized && (
-            <img
-              src={placeholder}
-              style={{
-                width: guiScaledDimension(width),
-                height: guiScaledDimension(height),
-              }}
-              alt="Scene placeholder"
-            />
-          )}
+          {!initialized && <img src={placeholder} alt="" />}
 
-          <div
-            className={css.viewport}
-            ref={viewportRef}
-            style={{
-              width: guiScaledDimension(width),
-              height: guiScaledDimension(height),
-            }}
-          ></div>
+          <div className={css.viewport} ref={viewportRef}></div>
         </div>
       </MinecraftTooltip>
     </>

@@ -1,12 +1,28 @@
 
 .root {
     position: relative;
+    --modelviewer-width: auto;
+    --modelviewer-height: auto;
+    --modelviewer-aspect-ratio: auto;
+    width: var(--modelviewer-width);
+    height: var(--modelviewer-height);
 }
 
 .root > img {
     position: absolute;
+    width: var(--modelviewer-width);
+    height: var(--modelviewer-height);
 }
 
 .viewport {
     display: inline-block;
+    width: var(--modelviewer-width);
+    height: var(--modelviewer-height);
+}
+
+.root, .root > img, .root > .viewport {
+    width: calc(min(100%, var(--modelviewer-width))) !important;
+    height: auto !important;
+    aspect-ratio: var(--modelviewer-aspect-ratio);
+    overflow: hidden;
 }

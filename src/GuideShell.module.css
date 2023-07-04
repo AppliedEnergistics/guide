@@ -8,8 +8,71 @@
     padding: var(--document-rect-margin);
 }
 
+.main .navbarBurger {
+    color: #EEEEEE;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    flex: 0 auto;
+    aspect-ratio: 1;
+    width: auto;
+    height: calc(100% - 10px);
+    box-sizing: border-box;
+
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    margin: 5px;
+}
+/* Taken from Bulma */
+
+.navbarBurger > span {
+    background-color: currentColor;
+    display: block;
+    height: 1px;
+    left: calc(50% - 8px);
+    position: absolute;
+    transform-origin: center;
+    transition-duration: 86ms;
+    transition-property: background-color, opacity, transform;
+    transition-timing-function: ease-out;
+    width: 16px;
+}
+
+.navbarBurger > span:nth-child(1) {
+    top: calc(50% - 6px)
+}
+
+.navbarBurger > span:nth-child(2) {
+    top: calc(50% - 1px)
+}
+
+.navbarBurger > span:nth-child(3) {
+    top: calc(50% + 4px)
+}
+
+/* Modifers */
+:global(.is-active).navbarBurger > span:nth-child(1) {
+    transform: translateY(5px) rotate(45deg);
+}
+
+:global(.is-active).navbarBurger > span:nth-child(2) {
+    opacity: 0;
+}
+
+:global(.is-active).navbarBurger > span:nth-child(3) {
+    transform: translateY(-5px) rotate(-45deg);
+}
+
 .versionPicker {
     text-align: center;
+}
+
+.topLogoBar {
+    display: flex;
 }
 
 .logo {
@@ -18,6 +81,7 @@
     color: var(--color-body-text);
     font-weight: bold;
     cursor: pointer;
+    flex: 1 auto;
 
     line-height: 1.5;
     padding: .5rem .75rem;
@@ -44,4 +108,31 @@
     background: linear-gradient(180deg, var(--color--navbar-bg-top) 0%, var(--color--navbar-bg-bottom) 100%);
     overflow-y: scroll;
     padding: 5px;
+}
+
+/* this is the same breakpoint that bulma is using for mobile */
+@media (max-width: 768px) {
+    .main {
+        grid-template-columns: 1fr;
+        grid-template-rows: max-content max-content 1fr max-content;
+    }
+
+    :global(:root) {
+        --document-rect-margin: 0 !important;
+    }
+
+
+    /* hide the nav-bar and version picker by default on mobile */
+    .main > aside, .main > .versionPicker {
+        display: none;
+    }
+
+    /* show them again if the menu is expanded */
+    .main.menuExpanded > aside, .main.menuExpanded > .versionPicker {
+        display: initial;
+    }
+    /* but then hide the article... */
+    .main.menuExpanded > article {
+        display: none;
+    }
 }
