@@ -31,7 +31,7 @@ export default class TextureManager {
       try {
         this.loader.setOptions({
           // Normal PNGs need to be flipped if they weren't exported from textures
-          imageOrientation: builtIn ? "flipY" : "from-image",
+          imageOrientation: builtIn ? "flipY" : "none",
         } satisfies ImageBitmapOptions);
         image = await this.loader.loadAsync(fullUrl);
       } catch (e) {
