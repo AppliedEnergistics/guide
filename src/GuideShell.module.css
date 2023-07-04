@@ -136,3 +136,10 @@
         display: none;
     }
 }
+
+@media (min-width: 768px) {
+    /* hide the button to show/hide the menu on non-mobile screens */
+    .main .navbarBurger {
+        display: none;
+    }
+}

@@ -34,7 +34,7 @@ function GuideShell() {
         </a>
       </div>
       <div>{/* TODO Show title */}</div>
-      <aside>
+      <aside onClick={() => setMenuExpanded(false)}>
         <GuideNavBar />
       </aside>
       <article>

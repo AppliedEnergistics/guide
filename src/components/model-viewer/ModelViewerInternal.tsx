@@ -132,13 +132,18 @@ async function initialize(
   const sceneCenter = sceneBounds.getCenter(new Vector3());
   group.position.copy(sceneCenter.clone().negate());
 
-  // Add a plane for orientation
+  // Add a plane for orientation if camera controls are enabled
   if (cameraControls) {
-    const grid = new GridHelper(20, 20, 0xffffffff, 0xffffffff);
+    // Get the extent on the x/z axis
+    const sceneSize = sceneBounds.getSize(new Vector3());
+    const gridDim = Math.max(sceneSize.x, sceneSize.z) + 2;
+
+    const grid = new GridHelper(gridDim, gridDim, 0xffffffff, 0xffffffff);
     grid.material = new LineBasicMaterial({
       transparent: true,
       opacity: 0.5,
     });
+    grid.position.copy(new Vector3(sceneCenter.x, 0, sceneCenter.z));
     group.add(grid);
   }
 

@@ -26,7 +26,7 @@ function createRouter(guide: Guide) {
 
     return {
       path: "/" + pageId,
-      element: <GuidebookPageRoute pageId={pageId} page={page} />,
+      element: <GuidebookPageRoute pageId={pageId} page={page} key={pageId} />,
       index,
     } satisfies RouteObject;
   });
