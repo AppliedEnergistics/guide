@@ -21,11 +21,8 @@ function CyclingIngredient({ itemIds }: RecipeIngredientProps) {
 function RecipeIngredient({ itemIds }: RecipeIngredientProps) {
   return (
     <div className={css.ingredientBox}>
-      {itemIds.length > 1 ? (
-        <CyclingIngredient itemIds={itemIds} />
-      ) : (
-        <ItemIcon id={itemIds[0]} />
-      )}
+      {itemIds.length > 1 && <CyclingIngredient itemIds={itemIds} />}
+      {itemIds.length === 1 && <ItemIcon id={itemIds[0]} />}
     </div>
   );
 }

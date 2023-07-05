@@ -1,10 +1,3 @@
-.recipeContainer > div + div {
-  margin-top: 1rem;
-}
-
-.recipeContainer + .recipeContainer {
-  margin-top: 1rem;
-}
 
 /**
  * Try to be responsive on mobile
@@ -12,6 +5,14 @@
 @media screen and (max-width: 1023px) {
   .recipeContainer {
     max-width: 100vw;
+  }
+
+  .recipeContainer > div + div {
+    margin-top: 1rem;
+  }
+
+  .recipeContainer + .recipeContainer {
+    margin-top: 1rem;
   }
 
   .recipeContainer > :first-child {
@@ -33,8 +34,10 @@
   align-items: center;
 }
 
+/* This is the title row */
 .recipeBoxLayout > :first-child {
   grid-column-start: span 3;
+  color: #333333;
 }
 
 .ingredientsBox,
@@ -42,8 +45,6 @@
 .ingredientsBoxShapeless2Col,
 .ingredientsBoxShapeless3Col {
   display: inline-grid;
-  column-gap: 5px;
-  row-gap: 5px;
   align-self: center;
   justify-self: start;
 }
@@ -78,9 +79,14 @@
 .emptyIngredientBox,
 .ingredientBox {
   display: inline-block;
-  background-color: #bbbbbb;
-  border-radius: 8px;
-  padding: 10px;
+  width: calc(18px * var(--gui-scale));
+  height: calc(18px * var(--gui-scale));
+  box-sizing: border-box;
+
+  border: calc(1px * var(--gui-scale)) solid;
+  image-rendering: pixelated;
+  border-image-source: url("../../assets/slot.png");
+  border-image-slice: 1 fill;
 }
 
 .ingredientBox:hover {

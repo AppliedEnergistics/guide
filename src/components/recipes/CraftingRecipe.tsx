@@ -16,9 +16,9 @@ function CraftingRecipe({ recipe }: CraftingRecipeProps) {
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
-        <strong>
-          {resultItem.displayName} {recipe.shapeless ? " (Shapeless)" : null}
-        </strong>
+        <div title={resultItem.displayName}>
+          Crafting {recipe.shapeless ? " (Shapeless)" : null}
+        </div>
         <RecipeIngredientGrid {...recipe} />
         <RecipeArrow />
         <RecipeIngredient itemIds={[recipe.resultItem]} />
