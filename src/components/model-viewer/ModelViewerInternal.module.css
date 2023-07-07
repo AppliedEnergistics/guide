@@ -6,6 +6,9 @@
     --modelviewer-aspect-ratio: auto;
     width: var(--modelviewer-width);
     height: var(--modelviewer-height);
+
+    background: rgb(0 0 0 / 20%);
+    border-radius: 16px;
 }
 
 .root > img {
