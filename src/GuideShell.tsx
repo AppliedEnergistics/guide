@@ -3,7 +3,8 @@ import { Link, Outlet } from "react-router-dom";
 import logo from "./assets/logo_00.png";
 import GuideNavBar from "./GuideNavBar.tsx";
 import { useGuide } from "./data/Guide.ts";
-import { useCallback, useState } from "react";
+import { ReactElement, useCallback, useState } from "react";
+import { GuidePageTitleProvider } from "./components/GuidePageTitleProvider.tsx";
 
 function GuideShell() {
   const guide = useGuide();
@@ -12,6 +13,7 @@ function GuideShell() {
   const toggleMenu = useCallback(() => {
     setMenuExpanded((expanded) => !expanded);
   }, []);
+  const [pageTitle, setPageTitle] = useState<ReactElement | null>(null);
 
   return (
     <main className={css.main + " " + (menuExpanded ? css.menuExpanded : "")}>
@@ -33,12 +35,14 @@ function GuideShell() {
           <span aria-hidden="true"></span>
         </a>
       </div>
-      <div>{/* TODO Show title */}</div>
+      <div>{pageTitle}</div>
       <aside onClick={() => setMenuExpanded(false)}>
         <GuideNavBar />
       </aside>
       <article>
-        <Outlet />
+        <GuidePageTitleProvider value={setPageTitle}>
+          <Outlet />
+        </GuidePageTitleProvider>
       </article>
       <div className={css.versionPicker}>
         Minecraft {guide.gameVersion} [<a href="#/">change</a>]

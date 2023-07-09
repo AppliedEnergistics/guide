@@ -1,6 +1,7 @@
 import { ExportedPage, useGuide } from "../data/Guide.ts";
 import { compilePage } from "../page-compiler/compilePage.tsx";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useGuidePageTitleSetter } from "./GuidePageTitleProvider.tsx";
 
 export type GuidebookPageRouteProps = {
   pageId: string;
@@ -9,7 +10,13 @@ export type GuidebookPageRouteProps = {
 
 function GuidebookPageRoute({ pageId, page }: GuidebookPageRouteProps) {
   const guide = useGuide();
-  return useMemo(() => compilePage(guide, pageId, page), [guide, pageId, page]);
+  const { title, content } = useMemo(
+    () => compilePage(guide, pageId, page),
+    [guide, pageId, page]
+  );
+  const setPageTitle = useGuidePageTitleSetter();
+  useEffect(() => setPageTitle(title), [setPageTitle, title]);
+  return content;
 }
 
 export default GuidebookPageRoute;

@@ -318,6 +318,14 @@ export class Guide {
     return this.index.recipes[recipeId];
   }
 
+  getRecipesByType<T extends RecipeType, RT = TaggedRecipe & { type: T }>(
+    recipeType: T
+  ): RT[] {
+    return Object.values(this.index.recipes).filter(
+      (recipe) => recipe.type === recipeType
+    ) as RT[];
+  }
+
   getRecipesForItem(item: string): TaggedRecipe[] {
     return this.recipesForItems.get(item) ?? [];
   }

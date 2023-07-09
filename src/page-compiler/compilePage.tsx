@@ -138,7 +138,7 @@ export function compilePage(
   guide: Guide,
   pageId: string,
   page: ExportedPage
-): ReactNode {
+): { title: ReactElement | null; content: ReactNode } {
   const astRoot = page.astRoot;
   assertNodeType(astRoot, "root");
 
@@ -151,5 +151,24 @@ export function compilePage(
     compileContentNode: (node, parent) => compileContent(context, node, parent),
   };
 
-  return context.compileChildren(astRoot);
+  let title: ReactElement | null = null;
+
+  // Clone root
+  const clonedRoot = {
+    ...astRoot,
+    children: [...astRoot.children],
+  };
+  for (let i = 0; i < clonedRoot.children.length; i++) {
+    const child = clonedRoot.children[i];
+    if (child.type === "heading") {
+      if (child.depth === 1) {
+        title = compileHeading(context, child);
+        clonedRoot.children.splice(i, 1);
+      }
+      break;
+    }
+  }
+  const content = context.compileChildren(clonedRoot);
+
+  return { title, content };
 }

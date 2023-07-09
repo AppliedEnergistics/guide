@@ -1,31 +1,32 @@
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
-import RecipeArrow from "./RecipeArrow";
-import { InscriberRecipeInfo, useGuide } from "../../data/Guide.ts";
+import { InscriberRecipeInfo } from "../../data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
 import ItemIcon from "../ItemIcon.tsx";
+import topArrow from "../../assets/inscriber_top.png";
+import bottomArrow from "../../assets/inscriber_bottom.png";
+import rightArrow from "../../assets/inscriber_right.png";
 
 export interface InscriberRecipeProps {
   recipe: InscriberRecipeInfo;
 }
 
 function InscriberRecipe({ recipe }: InscriberRecipeProps) {
-  const guide = useGuide();
-  const resultItem = guide.getItemInfo(recipe.resultItem);
-
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
         <div>
-          <ItemIcon nolink id="inscriber" /> Inscriber: {resultItem.displayName}
+          <ItemIcon nolink id="inscriber" /> Inscriber
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className={css.inscriberGrid}>
           <RecipeIngredient itemIds={recipe.top} />
           <RecipeIngredient itemIds={recipe.middle} />
           <RecipeIngredient itemIds={recipe.bottom} />
+          <RecipeIngredient itemIds={[recipe.resultItem]} />
+          <img src={topArrow} alt="" />
+          <img src={bottomArrow} alt="" />
+          <img src={rightArrow} alt="" />
         </div>
-        <RecipeArrow />
-        <RecipeIngredient itemIds={[recipe.resultItem]} />
       </div>
     </MinecraftFrame>
   );

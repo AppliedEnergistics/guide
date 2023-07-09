@@ -47,6 +47,7 @@ function FluidTransformCircumstance({ fluids }: { fluids: string[] }) {
       <img
         className={css.fluidIcon}
         src={guide.baseUrl + "/" + fluidInfo.icon}
+        alt=""
       />
       {" Throw in " + fluidInfo.displayName}
     </>

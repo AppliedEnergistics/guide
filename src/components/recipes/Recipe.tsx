@@ -19,16 +19,20 @@ export type RecipeProps =
     }
   | { id?: never; recipe: TaggedRecipe };
 
+function UnsupportedRecipeType({ recipe }: { recipe: TaggedRecipe }) {
+  return <ErrorText>Unsupported Recipe Type ({recipe.type})</ErrorText>;
+}
+
 const RecipeTypeMap: Record<RecipeType, JSXElementConstructor<any>> = {
   [RecipeType.CraftingRecipeType]: CraftingRecipe,
   [RecipeType.SmeltingRecipeType]: SmeltingRecipe,
-  // [RecipeType.StonecuttingRecipeType]: StonecuttingRecipe,
+  [RecipeType.StonecuttingRecipeType]: UnsupportedRecipeType,
   [RecipeType.SmithingRecipeType]: SmithingRecipe,
   [RecipeType.TransformRecipeType]: TransformRecipe,
   [RecipeType.InscriberRecipeType]: InscriberRecipe,
   [RecipeType.ChargerRecipeType]: ChargerRecipe,
-  // [RecipeType.EntropyRecipeType]: EntropyRecipe,
-  // [RecipeType.MatterCannonAmmoType]: MatterCannonAmmo,
+  [RecipeType.EntropyRecipeType]: UnsupportedRecipeType,
+  [RecipeType.MatterCannonAmmoType]: UnsupportedRecipeType,
 };
 
 function Recipe(props: RecipeProps) {
