@@ -3,8 +3,25 @@ import { Link, Outlet } from "react-router-dom";
 import logo from "./assets/logo_00.png";
 import GuideNavBar from "./GuideNavBar.tsx";
 import { useGuide } from "./data/Guide.ts";
-import { ReactElement, useCallback, useState } from "react";
-import { GuidePageTitleProvider } from "./components/GuidePageTitleProvider.tsx";
+import { ReactElement, useCallback, useEffect, useState } from "react";
+import { GuidePageTitleProvider } from "./components/GuidePageTitleProvider.ts";
+
+function getTextContent(elem: ReactElement | string): string {
+  if (typeof elem === "string") {
+    return elem;
+  } else if (!elem.props) {
+    return "";
+  }
+
+  const { children } = elem.props;
+  if (typeof children === "string") {
+    return children;
+  } else if (Array.isArray(children)) {
+    return children.map(getTextContent).join("");
+  } else {
+    return "";
+  }
+}
 
 function GuideShell() {
   const guide = useGuide();
@@ -14,6 +31,19 @@ function GuideShell() {
     setMenuExpanded((expanded) => !expanded);
   }, []);
   const [pageTitle, setPageTitle] = useState<ReactElement | null>(null);
+
+  // Update the window-title based on the current page title
+  useEffect(() => {
+    const initialTitle = document.title;
+
+    if (pageTitle) {
+      document.title = initialTitle + " - " + getTextContent(pageTitle);
+    }
+
+    return () => {
+      document.title = initialTitle;
+    };
+  }, [pageTitle]);
 
   return (
     <main className={css.main + " " + (menuExpanded ? css.menuExpanded : "")}>

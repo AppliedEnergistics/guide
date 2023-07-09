@@ -158,6 +158,8 @@ export function compilePage(
     ...astRoot,
     children: [...astRoot.children],
   };
+
+  // Pull out first heading if it's level 1 and use as page title
   for (let i = 0; i < clonedRoot.children.length; i++) {
     const child = clonedRoot.children[i];
     if (child.type === "heading") {

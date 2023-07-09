@@ -1,7 +1,7 @@
 import { ExportedPage, useGuide } from "../data/Guide.ts";
 import { compilePage } from "../page-compiler/compilePage.tsx";
 import { useEffect, useMemo } from "react";
-import { useGuidePageTitleSetter } from "./GuidePageTitleProvider.tsx";
+import { useGuidePageTitleSetter } from "./GuidePageTitleProvider.ts";
 
 export type GuidebookPageRouteProps = {
   pageId: string;
