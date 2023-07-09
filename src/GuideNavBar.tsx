@@ -2,6 +2,7 @@ import { NavigationNode, useGuide } from "./data/Guide.ts";
 import { LinkProps, NavLink } from "react-router-dom";
 import css from "./GuideNavBar.module.css";
 import { useState } from "react";
+import ItemIcon from "./components/ItemIcon.tsx";
 
 function NavbarLink({
   node,
@@ -13,6 +14,7 @@ function NavbarLink({
 } & Omit<LinkProps, "to" | "relative">) {
   return (
     <NavLink to={"./" + node.pageId} relative={"route"} {...rest}>
+      {node.icon && <ItemIcon nolink id={node.icon} />}
       {expanded !== undefined && <CollapseIndicator expanded={expanded} />}
       {node.title}
     </NavLink>

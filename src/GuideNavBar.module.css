@@ -8,8 +8,12 @@
 }
 
 .root a {
-    display: block;
+    display: flex;
     color: var(--color-body-text);
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+    padding-left: 4px;
 }
 
 .root a:hover {
@@ -24,4 +28,12 @@
 
 .subLevel {
     margin-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.root :global(.item-icon), .root :global(.fluid-icon) {
+    width: auto;
+    height: 1em;
 }

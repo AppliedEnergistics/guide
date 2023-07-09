@@ -172,7 +172,7 @@ export type GuideIndex = {
 export type NavigationNode = {
   pageId: string;
   title: string;
-  icon: string;
+  icon?: string;
   children: NavigationNode[];
   position: number;
   hasPage: boolean;
