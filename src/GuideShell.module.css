@@ -27,6 +27,7 @@
     border-radius: 8px;
     margin: 5px;
 }
+
 /* Taken from Bulma */
 
 .navbarBurger > span {
@@ -97,6 +98,18 @@
     max-width: 100%;
 }
 
+
+.pageTitle {
+    display: flex;
+    border-bottom: calc(1px * var(--gui-scale)) solid var(--color-header1-separator);
+}
+
+.pageTitle > h1 {
+    border: none;
+    margin: 0;
+    align-self: center;
+}
+
 .main > article {
     padding: calc(5px * var(--gui-scale));
     background-color: #33333380;
@@ -117,6 +130,10 @@
         grid-template-rows: max-content max-content 1fr max-content;
     }
 
+    .pageTitle {
+        display: none;
+    }
+
     :global(:root) {
         --document-rect-margin: 0 !important;
     }
@@ -131,6 +148,7 @@
     .main.menuExpanded > aside, .main.menuExpanded > .versionPicker {
         display: initial;
     }
+
     /* but then hide the article... */
     .main.menuExpanded > article {
         display: none;
@@ -140,6 +158,10 @@
 @media (min-width: 768px) {
     /* hide the button to show/hide the menu on non-mobile screens */
     .main .navbarBurger {
+        display: none;
+    }
+
+    :global(.inlinePageTitle) {
         display: none;
     }
 }

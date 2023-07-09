@@ -165,7 +165,19 @@ export function compilePage(
     if (child.type === "heading") {
       if (child.depth === 1) {
         title = compileHeading(context, child);
-        clonedRoot.children.splice(i, 1);
+        // Wrap the existing heading such that it can be re-enabled for mobile clients
+        clonedRoot.children[i] = {
+          type: "mdxJsxFlowElement",
+          name: "div",
+          attributes: [
+            {
+              type: "mdxJsxAttribute",
+              name: "className",
+              value: "inlinePageTitle",
+            },
+          ],
+          children: [child],
+        };
       }
       break;
     }

@@ -65,7 +65,7 @@ function GuideShell() {
           <span aria-hidden="true"></span>
         </a>
       </div>
-      <div>{pageTitle}</div>
+      <div className={css.pageTitle}>{pageTitle}</div>
       <aside onClick={() => setMenuExpanded(false)}>
         <GuideNavBar />
       </aside>
