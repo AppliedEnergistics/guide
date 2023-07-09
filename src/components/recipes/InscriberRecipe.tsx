@@ -3,6 +3,7 @@ import RecipeIngredient from "./RecipeIngredient";
 import RecipeArrow from "./RecipeArrow";
 import { InscriberRecipeInfo, useGuide } from "../../data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
+import ItemIcon from "../ItemIcon.tsx";
 
 export interface InscriberRecipeProps {
   recipe: InscriberRecipeInfo;
@@ -15,7 +16,9 @@ function InscriberRecipe({ recipe }: InscriberRecipeProps) {
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
-        <div>{resultItem.displayName}</div>
+        <div>
+          <ItemIcon nolink id="inscriber" /> Inscriber: {resultItem.displayName}
+        </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <RecipeIngredient itemIds={recipe.top} />
           <RecipeIngredient itemIds={recipe.middle} />

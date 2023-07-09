@@ -4,6 +4,7 @@ import smelt from "./smelt.png";
 import RecipeArrow from "./RecipeArrow";
 import { SmeltingRecipeInfo, useGuide } from "../../data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
+import ItemIcon from "../ItemIcon.tsx";
 
 export interface SmeltingRecipeProps {
   recipe: SmeltingRecipeInfo;
@@ -16,7 +17,10 @@ function SmeltingRecipe({ recipe }: SmeltingRecipeProps) {
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
-        <div>Smelting - {resultItem.displayName}</div>
+        <div>
+          <ItemIcon nolink id="minecraft:furnace" /> Smelting:{" "}
+          {resultItem.displayName}
+        </div>
         <div className={css.smeltingInputBox}>
           <RecipeIngredient itemIds={recipe.ingredient} />
           <div className={css.ingredientBox}>

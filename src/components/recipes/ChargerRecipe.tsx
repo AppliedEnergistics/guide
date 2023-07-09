@@ -1,28 +1,25 @@
-import RecipeIngredientGrid from "./RecipeIngredientGrid";
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 import RecipeArrow from "./RecipeArrow";
-import { CraftingRecipeInfo, useGuide } from "../../data/Guide.ts";
+import { ChargerRecipeInfo, useGuide } from "../../data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
 import ItemIcon from "../ItemIcon.tsx";
 
-export interface CraftingRecipeProps {
-  recipe: CraftingRecipeInfo;
+export interface ChargerRecipeProps {
+  recipe: ChargerRecipeInfo;
 }
 
-function CraftingRecipe({ recipe }: CraftingRecipeProps) {
+function ChargerRecipe({ recipe }: ChargerRecipeProps) {
   const guide = useGuide();
   const resultItem = guide.getItemInfo(recipe.resultItem);
 
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
-        <div title={resultItem.displayName}>
-          <ItemIcon nolink id="minecraft:crafting_table" />
-          Crafting
-          {recipe.shapeless ? " (Shapeless)" : null}
+        <div>
+          <ItemIcon nolink id="charger" /> Charger: {resultItem.displayName}
         </div>
-        <RecipeIngredientGrid {...recipe} />
+        <RecipeIngredient itemIds={recipe.ingredient} />
         <RecipeArrow />
         <RecipeIngredient itemIds={[recipe.resultItem]} />
       </div>
@@ -30,4 +27,4 @@ function CraftingRecipe({ recipe }: CraftingRecipeProps) {
   );
 }
 
-export default CraftingRecipe;
+export default ChargerRecipe;

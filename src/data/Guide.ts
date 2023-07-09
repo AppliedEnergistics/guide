@@ -1,42 +1,109 @@
 import { createContext, useContext } from "react";
 import { Root as MdAstRoot } from "mdast";
 
-export interface RecipeInfo {
+export enum RecipeType {
+  CraftingRecipeType = "minecraft:crafting",
+  SmeltingRecipeType = "minecraft:smelting",
+  StonecuttingRecipeType = "minecraft:stonecutting",
+  SmithingRecipeType = "minecraft:smithing",
+  TransformRecipeType = "ae2:transform",
+  InscriberRecipeType = "ae2:inscriber",
+  ChargerRecipeType = "ae2:charger",
+  EntropyRecipeType = "ae2:entropy",
+  MatterCannonAmmoType = "ae2:matter_cannon",
+}
+
+export interface RecipeInfo<T extends RecipeType> {
+  type: T;
   id: string;
   resultItem: string;
   resultCount: number;
 }
 
-export interface CraftingRecipeInfo extends RecipeInfo {
+export interface CraftingRecipeInfo
+  extends RecipeInfo<typeof RecipeType.CraftingRecipeType> {
   shapeless: boolean;
   ingredients: string[][];
   width: number;
   height: number;
 }
 
-export interface SmeltingRecipeInfo extends RecipeInfo {
+export interface SmeltingRecipeInfo
+  extends RecipeInfo<typeof RecipeType.SmeltingRecipeType> {
   ingredient: string[];
 }
 
-export interface InscriberRecipeInfo extends RecipeInfo {
+export interface SmithingRecipeInfo
+  extends RecipeInfo<typeof RecipeType.SmithingRecipeType> {
+  base: string[];
+  addition: string[];
+  template: string[];
+}
+
+export interface StonecuttingRecipeInfo
+  extends RecipeInfo<typeof RecipeType.StonecuttingRecipeType> {
+  ingredient: string[];
+}
+
+export interface InscriberRecipeInfo
+  extends RecipeInfo<typeof RecipeType.InscriberRecipeType> {
   top: string[];
   middle: string[];
   bottom: string[];
   consumesTopAndBottom: boolean;
 }
 
-export type TaggedRecipe =
-  | ({ type: "crafting" } & CraftingRecipeInfo)
-  | ({ type: "smelting" } & SmeltingRecipeInfo)
-  | ({ type: "inscriber" } & InscriberRecipeInfo);
+export type TransformCircumstanceInfo =
+  | { type: "explosion" }
+  | TransformInFluidCircumstanceInfo;
 
-const validRarity = ["common", "uncommon", "rare", "epic"];
+export interface TransformInFluidCircumstanceInfo {
+  type: "fluid";
+  // IDs of fluids
+  fluids: string[];
+}
+
+export interface TransformRecipeInfo
+  extends RecipeInfo<typeof RecipeType.TransformRecipeType> {
+  ingredients: string[][];
+  resultItem: string;
+  circumstance: TransformCircumstanceInfo;
+}
+
+export interface EntropyRecipeInfo
+  extends RecipeInfo<typeof RecipeType.EntropyRecipeType> {}
+
+export interface ChargerRecipeInfo
+  extends RecipeInfo<typeof RecipeType.ChargerRecipeType> {
+  ingredient: string[];
+}
+
+export interface MatterCannonAmmoInfo
+  extends RecipeInfo<typeof RecipeType.MatterCannonAmmoType> {}
+
+export type TaggedRecipe =
+  | CraftingRecipeInfo
+  | SmithingRecipeInfo
+  | SmeltingRecipeInfo
+  | StonecuttingRecipeInfo
+  | InscriberRecipeInfo
+  | TransformRecipeInfo
+  | EntropyRecipeInfo
+  | ChargerRecipeInfo
+  | MatterCannonAmmoInfo;
+
 export type Rarity = "common" | "uncommon" | "rare" | "epic";
 
 export interface ItemInfo {
   id: string;
   displayName: string;
   rarity: Rarity;
+  icon: string;
+}
+
+export interface FluidInfo {
+  id: string;
+  displayName: string;
   icon: string;
 }
 
@@ -51,6 +118,20 @@ export type ExportedPage = {
   title: string;
   astRoot: MdAstRoot;
   frontmatter: Record<string, unknown>;
+};
+
+export type AnimationInfo = {
+  frameWidth: number;
+  frameHeight: number;
+  length: number;
+  frameCount: number;
+  keyFrames: AnimationFrame[];
+};
+
+export type AnimationFrame = {
+  index: number;
+  frameX: number;
+  frameY: number;
 };
 
 export type DyeColor =
@@ -76,15 +157,16 @@ export type GuideIndex = {
   pages: Record<string, ExportedPage>;
   navigationRootNodes: NavigationNode[];
 
-  items: ItemInfo[];
+  items: Record<string, ItemInfo>;
+  fluids: Record<string, FluidInfo>;
 
-  craftingRecipes: Record<string, CraftingRecipeInfo>;
-  smeltingRecipes: Record<string, SmeltingRecipeInfo>;
-  inscriberRecipes: Record<string, InscriberRecipeInfo>;
+  recipes: Record<string, TaggedRecipe>;
 
   coloredVersions: Record<string, Record<DyeColor, string>>;
 
   pageIndices: Record<string, Array<any>>;
+
+  animations: Record<string, AnimationInfo>;
 };
 
 export type NavigationNode = {
@@ -102,11 +184,12 @@ export type CategoryIndex = Map<string, string[]>;
 
 export class Guide {
   readonly baseUrl: string;
-  private readonly indexByItemId: Map<string, ItemInfo>;
 
   readonly coloredVersionItemIds = new Set<string>();
 
   readonly pageByItemIndex: ItemIndex;
+
+  private readonly recipesForItems = new Map<string, TaggedRecipe[]>();
 
   constructor(
     baseUrl: string,
@@ -117,9 +200,21 @@ export class Guide {
     this.index = index;
     this.baseUrl = baseUrl.replace(/\/+$/, "");
 
-    /**
-     * Find all item ids of items that are just colored versions of something else.
-     */
+    // Index recipes by item.
+    for (const [key, recipe] of Object.entries(index.recipes)) {
+      recipe.id = key; // ID is not part of the actual recipe object to save space
+
+      if (recipe.resultItem) {
+        const list = this.recipesForItems.get(recipe.resultItem);
+        if (list) {
+          list.push(recipe);
+        } else {
+          this.recipesForItems.set(recipe.resultItem, [recipe]);
+        }
+      }
+    }
+
+    // Find all item ids of items that are just colored versions of something else.
     for (const [, variants] of Object.entries(index.coloredVersions)) {
       for (const coloredItemId of Object.values(variants)) {
         this.coloredVersionItemIds.add(coloredItemId);
@@ -134,23 +229,6 @@ export class Guide {
           yield [itemIndex[i], itemIndex[i + 1]];
         }
       })()
-    );
-
-    this.indexByItemId = new Map<string, ItemInfo>(
-      Object.values(index.items).map((item) => {
-        const icon = item.icon
-          .replaceAll("\\", "/")
-          .replaceAll(/^icons\//g, "/icons/");
-        if (!validRarity.includes(item.rarity)) {
-          throw new Error(`Invalid rarity: ${item.rarity}`);
-        }
-        const info: ItemInfo = {
-          ...item,
-          rarity: item.rarity as Rarity,
-          icon,
-        };
-        return [item.id, info];
-      })
     );
   }
 
@@ -169,18 +247,6 @@ export class Guide {
 
   get defaultNamespace(): string {
     return this.index.defaultNamespace;
-  }
-
-  get craftingRecipes(): Record<string, CraftingRecipeInfo> {
-    return this.index.craftingRecipes;
-  }
-
-  get smeltingRecipes(): Record<string, SmeltingRecipeInfo> {
-    return this.index.smeltingRecipes;
-  }
-
-  get inscriberRecipes(): Record<string, InscriberRecipeInfo> {
-    return this.index.inscriberRecipes;
   }
 
   /**
@@ -229,33 +295,31 @@ export class Guide {
     return entry;
   }
 
+  getFluidInfo(fluidId: string): FluidInfo {
+    const entry = this.tryGetFluidInfo(fluidId);
+    if (!entry) {
+      throw new Error(`Missing fluid-info for '${fluidId}'.`);
+    }
+    return entry;
+  }
+
   tryGetItemInfo(itemId: string): ItemInfo | undefined {
     itemId = this.resolveId(itemId);
-    return this.indexByItemId.get(itemId);
+    return this.index.items[itemId];
   }
 
-  getRecipeById(id: string): TaggedRecipe | undefined {
-    return (
-      Guide.getRecipeTagged("crafting", this.craftingRecipes, id) ??
-      Guide.getRecipeTagged("smelting", this.smeltingRecipes, id) ??
-      Guide.getRecipeTagged("inscriber", this.inscriberRecipes, id)
-    );
+  tryGetFluidInfo(fluidId: string): FluidInfo | undefined {
+    fluidId = this.resolveId(fluidId);
+    return this.index.fluids[fluidId];
   }
 
-  private static getRecipeTagged<T extends string, U>(
-    type: T,
-    recipes: Record<string, U>,
-    id: string
-  ): ({ type: T } & U) | undefined {
-    const recipe = recipes[id];
-    if (recipe) {
-      return {
-        type,
-        ...recipe,
-      };
-    } else {
-      return undefined;
-    }
+  getRecipeById(recipeId: string): TaggedRecipe | undefined {
+    recipeId = this.resolveId(recipeId);
+    return this.index.recipes[recipeId];
+  }
+
+  getRecipesForItem(item: string): TaggedRecipe[] {
+    return this.recipesForItems.get(item) ?? [];
   }
 
   pageExists(pageId: string): boolean {

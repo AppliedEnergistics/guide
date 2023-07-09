@@ -29,6 +29,9 @@ import { buildInWorldAnnotation } from "./buildInWorldAnnotation.ts";
 import addLevelLighting from "./addSceneLighting.ts";
 import buildOverlayAnnotation from "./buildOverlayAnnotations.ts";
 import TextureManager from "./TextureManager.ts";
+import plusIcon from "../../assets/button_plus.png";
+import minusIcon from "../../assets/button_minus.png";
+import resetIcon from "../../assets/button_reset.png";
 
 const DEBUG = false;
 
@@ -40,6 +43,23 @@ declare module "csstype" {
     "--modelviewer-aspect-ratio"?: number;
   }
 }
+
+interface ControlInterface {
+  zoomIn(): void;
+
+  zoomOut(): void;
+
+  resetView(): void;
+
+  dispose(): void;
+}
+
+const DummyControlInterface: ControlInterface = {
+  dispose(): void {},
+  resetView(): void {},
+  zoomIn(): void {},
+  zoomOut(): void {},
+};
 
 export type Annotation = OverlayAnnotation | InWorldAnnotation;
 
@@ -118,7 +138,7 @@ async function initialize(
   setTooltipObject: (object: ReactNode | undefined) => void,
   abortSignal: AbortSignal,
   originalWidth: number
-) {
+): Promise<ControlInterface> {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
     premultipliedAlpha: false,
@@ -213,6 +233,7 @@ async function initialize(
   let controls: OrbitControls | undefined;
   if (cameraControls) {
     controls = new OrbitControls(camera, viewportEl);
+    controls.enableZoom = false;
     controls.update();
   } else {
     camera.lookAt(new Vector3());
@@ -232,6 +253,7 @@ async function initialize(
           if (cameraControls) {
             controls?.dispose();
             controls = new OrbitControls(camera, viewportEl);
+            controls.enableZoom = false;
             controls.update();
           } else {
             camera.lookAt(new Vector3());
@@ -273,18 +295,53 @@ async function initialize(
     console.error("Failed to render %s", source, e);
   }
 
-  return () => {
-    if (!disposed) {
-      console.debug("Disposing model viewer for %s", source);
-      disposed = true;
-      if (resizeObserver) {
-        resizeObserver.disconnect();
+  return {
+    dispose(): void {
+      if (!disposed) {
+        console.debug("Disposing model viewer for %s", source);
+        disposed = true;
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
+        viewportEl.removeChild(renderer.domElement);
+        renderer.dispose();
+        controls?.dispose();
+        setTooltipObject(undefined);
       }
-      viewportEl.removeChild(renderer.domElement);
-      renderer.dispose();
-      controls?.dispose();
-      setTooltipObject(undefined);
-    }
+    },
+    resetView(): void {
+      controls?.reset();
+    },
+    zoomIn(): void {
+      if (controls) {
+        controls.enableZoom = true;
+        try {
+          for (let i = 0; i < 5; i++) {
+            const e = new WheelEvent("wheel", {
+              deltaY: -120,
+            });
+            controls.domElement.dispatchEvent(e);
+          }
+        } finally {
+          controls.enableZoom = false;
+        }
+      }
+    },
+    zoomOut(): void {
+      if (controls) {
+        controls.enableZoom = true;
+        try {
+          for (let i = 0; i < 5; i++) {
+            const e = new WheelEvent("wheel", {
+              deltaY: 120,
+            });
+            controls.domElement.dispatchEvent(e);
+          }
+        } finally {
+          controls.enableZoom = false;
+        }
+      }
+    },
   };
 }
 
@@ -293,7 +350,7 @@ function ModelViewerInternal({
   src,
   placeholder,
   interactive = false,
-  background = "transparent",
+  background,
   width,
   height,
   inWorldAnnotations,
@@ -304,6 +361,7 @@ function ModelViewerInternal({
   const [tooltipObject, setTooltipObject] = useState<ReactNode | undefined>();
   const mousePos = useRef<Vector2 | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const controlRef = useRef<ControlInterface>(DummyControlInterface);
   useLayoutEffect(() => {
     const viewportEl = viewportRef.current;
     if (!viewportEl) {
@@ -327,12 +385,13 @@ function ModelViewerInternal({
       abortController.signal,
       width
     )
-      .then((f) => {
+      .then((control) => {
         if (disposed) {
-          f();
+          control.dispose();
         } else {
           setInitialized(true);
-          disposer = f;
+          controlRef.current = control;
+          disposer = () => control.dispose();
         }
       })
       .catch((err) => {
@@ -364,6 +423,21 @@ function ModelViewerInternal({
     width,
   ]);
 
+  function zoomIn(e: React.MouseEvent) {
+    e.preventDefault();
+    controlRef?.current?.zoomIn();
+  }
+
+  function zoomOut(e: React.MouseEvent) {
+    e.preventDefault();
+    controlRef?.current?.zoomOut();
+  }
+
+  function resetView(e: React.MouseEvent) {
+    e.preventDefault();
+    controlRef?.current?.resetView();
+  }
+
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const canvas = viewportRef.current?.querySelector("canvas");
     if (!canvas) {
@@ -386,7 +460,15 @@ function ModelViewerInternal({
   }
 
   return (
-    <>
+    <div
+      className={css.wrapper + " " + (!initialized ? css.loading : "")}
+      style={{
+        background,
+        "--modelviewer-width": guiScaledDimension(width),
+        "--modelviewer-height": guiScaledDimension(height),
+        "--modelviewer-aspect-ratio": width / height,
+      }}
+    >
       {error && <ErrorText>{String(error)}</ErrorText>}
       <MinecraftTooltip
         content={tooltipObject}
@@ -394,12 +476,6 @@ function ModelViewerInternal({
       >
         <div
           className={css.root}
-          style={{
-            background,
-            "--modelviewer-width": guiScaledDimension(width),
-            "--modelviewer-height": guiScaledDimension(height),
-            "--modelviewer-aspect-ratio": width / height,
-          }}
           onMouseMove={onMouseMove}
           onMouseLeave={onMouseLeave}
         >
@@ -408,7 +484,26 @@ function ModelViewerInternal({
           <div className={css.viewport} ref={viewportRef}></div>
         </div>
       </MinecraftTooltip>
-    </>
+      {interactive && (
+        <div className={css.controls}>
+          <MinecraftTooltip content={"Zoom in"}>
+            <button onClick={zoomIn}>
+              <img src={plusIcon} alt="" />
+            </button>
+          </MinecraftTooltip>
+          <MinecraftTooltip content={"Zoom out"}>
+            <button onClick={zoomOut}>
+              <img src={minusIcon} alt="" />
+            </button>
+          </MinecraftTooltip>
+          <MinecraftTooltip content={"Reset view"}>
+            <button onClick={resetView}>
+              <img src={resetIcon} alt="" />
+            </button>
+          </MinecraftTooltip>
+        </div>
+      )}
+    </div>
   );
 }
 

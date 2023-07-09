@@ -1,21 +1,25 @@
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 
-export interface RecipeIngredientsProps {
-  ingredients: string[][];
-  shapeless: boolean;
-  width: number;
-  height: number;
-}
+export type RecipeIngredientsProps =
+  | {
+      ingredients: string[][];
+      shapeless: true;
+    }
+  | {
+      ingredients: string[][];
+      shapeless: false;
+      width: number;
+      height: number;
+    };
 
 function RecipeIngredientGrid({
   ingredients,
-  shapeless,
-  width,
+  ...props
 }: RecipeIngredientsProps) {
   // Shapeless recipes do not show empty cells
   let className = css.ingredientsBox;
-  if (shapeless) {
+  if (props.shapeless) {
     ingredients = ingredients.filter((i) => i.length);
 
     if (ingredients.length <= 1) {
@@ -26,6 +30,8 @@ function RecipeIngredientGrid({
       className = css.ingredientsBoxShapeless3Col;
     }
   } else {
+    const { width } = props;
+
     // Pad out the ingredient grid to 3x3 for shaped recipes
     const sparseIngredients: string[][] = [[], [], [], [], [], [], [], [], []];
     for (let i = 0; i < ingredients.length; i++) {

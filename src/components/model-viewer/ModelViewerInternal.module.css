@@ -1,31 +1,66 @@
 
-.root {
-    position: relative;
+.wrapper {
+    display: inline-flex;
+    flex-direction: row;
+
     --modelviewer-width: auto;
     --modelviewer-height: auto;
     --modelviewer-aspect-ratio: auto;
-    width: var(--modelviewer-width);
-    height: var(--modelviewer-height);
 
-    background: rgb(0 0 0 / 20%);
+    background-color: var(--color--scene-background);
     border-radius: 16px;
+}
+
+.loading .controls {
+    display: none;
+}
+
+.controls {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.controls button {
+    appearance: none;
+    border: none;
+    background: none;
+}
+
+.controls button img {
+    width: 32px;
+    height: 32px;
+    opacity: 0.8;
+}
+
+.controls button:hover img {
+    opacity: 1;
+}
+
+.controls button:active img {
+    opacity: 0.6;
+}
+
+.controls button:disabled img {
+    opacity: 0.2;
+}
+
+.root {
+    position: relative;
 }
 
 .root > img {
     position: absolute;
-    width: var(--modelviewer-width);
-    height: var(--modelviewer-height);
 }
 
 .viewport {
     display: inline-block;
-    width: var(--modelviewer-width);
-    height: var(--modelviewer-height);
 }
 
 .root, .root > img, .root > .viewport {
-    width: calc(min(100%, var(--modelviewer-width))) !important;
+    width: var(--modelviewer-width);
     height: auto !important;
     aspect-ratio: var(--modelviewer-aspect-ratio);
     overflow: hidden;
 }
+

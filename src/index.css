@@ -63,7 +63,7 @@ hr {
     --color--icon-button-disabled: rgb(64, 64, 64);
     --color--icon-button-hover: rgb(0, 213, 255);
     --color--in-world-block-highlight: #999999cc;
-    --color--scene-background: rgba(0, 0, 0, 0.08);
+    --color--scene-background: rgba(0, 0, 0, 0.2);
 
     /* Global UI scale mimicking the Minecraft scaling */
     --gui-scale: 3;
@@ -165,4 +165,20 @@ a:hover {
 .item-icon {
     width: calc(16px * var(--gui-scale));
     height: calc(16px * var(--gui-scale));
+}
+
+table {
+    border-collapse: collapse;
+}
+table td, table th {
+    padding: 6px;
+}
+th {
+    border-bottom: calc(1px * var(--gui-scale)) solid var(--color--table-border);
+}
+tr + tr td {
+    border-top: 1px solid var(--color--table-border);
+}
+td + td, th + th {
+    border-left: 1px solid var(--color--table-border);
 }

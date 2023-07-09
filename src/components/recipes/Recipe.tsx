@@ -2,39 +2,58 @@ import CraftingRecipe from "./CraftingRecipe";
 import InscriberRecipe from "./InscriberRecipe";
 import SmeltingRecipe from "./SmeltingRecipe";
 import css from "./recipe.module.css";
-import { useGuide } from "../../data/Guide.ts";
+import { RecipeType, TaggedRecipe, useGuide } from "../../data/Guide.ts";
 import ErrorText from "../ErrorText.tsx";
+import React, { JSXElementConstructor } from "react";
+import TransformRecipe from "./TransformRecipe.tsx";
+import ChargerRecipe from "./ChargerRecipe.tsx";
+import SmithingRecipe from "./SmithingRecipe.tsx";
 
-export interface RecipeProps {
-  /**
-   * Recipe ID
-   */
-  id: string;
-}
+export type RecipeProps =
+  | {
+      /**
+       * Recipe ID
+       */
+      id: string;
+      recipe?: never;
+    }
+  | { id?: never; recipe: TaggedRecipe };
 
-function Recipe({ id }: RecipeProps) {
+const RecipeTypeMap: Record<RecipeType, JSXElementConstructor<any>> = {
+  [RecipeType.CraftingRecipeType]: CraftingRecipe,
+  [RecipeType.SmeltingRecipeType]: SmeltingRecipe,
+  // [RecipeType.StonecuttingRecipeType]: StonecuttingRecipe,
+  [RecipeType.SmithingRecipeType]: SmithingRecipe,
+  [RecipeType.TransformRecipeType]: TransformRecipe,
+  [RecipeType.InscriberRecipeType]: InscriberRecipe,
+  [RecipeType.ChargerRecipeType]: ChargerRecipe,
+  // [RecipeType.EntropyRecipeType]: EntropyRecipe,
+  // [RecipeType.MatterCannonAmmoType]: MatterCannonAmmo,
+};
+
+function Recipe(props: RecipeProps) {
   const guide = useGuide();
-  id = guide.resolveId(id);
-
-  const recipe = guide.getRecipeById(id);
-
-  if (!recipe) {
-    return <ErrorText>Missing recipe {id}</ErrorText>;
+  let recipe: TaggedRecipe | undefined;
+  if (typeof props.recipe !== "undefined") {
+    recipe = props.recipe;
+  } else {
+    recipe = guide.getRecipeById(props.id);
   }
 
-  return (
-    <div className={css.recipeContainer}>
-      {recipe.type === "crafting" && (
-        <CraftingRecipe key={recipe.id} recipe={recipe} />
-      )}
-      {recipe.type === "inscriber" && (
-        <InscriberRecipe key={recipe.id} recipe={recipe} />
-      )}
-      {recipe.type === "smelting" && (
-        <SmeltingRecipe key={recipe.id} recipe={recipe} />
-      )}
-    </div>
-  );
+  if (!recipe) {
+    return <ErrorText>Missing recipe {props.id}</ErrorText>;
+  }
+
+  const componentType = RecipeTypeMap[recipe.type];
+  if (!componentType) {
+    return <ErrorText>Unknown recipe type {recipe.type}</ErrorText>;
+  }
+
+  const recipeEl = React.createElement(componentType, {
+    recipe,
+  });
+
+  return <div className={css.recipeContainer}>{recipeEl}</div>;
 }
 
 export default Recipe;
