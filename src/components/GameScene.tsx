@@ -4,8 +4,8 @@ import type { ModelViewerProps } from "./model-viewer/ModelViewerInternal.tsx";
 
 function GameScene({ src, placeholder, ...props }: ModelViewerProps) {
   const guide = useGuide();
-  src = guide.baseUrl + "/" + src;
-  placeholder = guide.baseUrl + "/" + placeholder;
+  src = guide.baseUrl + src;
+  placeholder = guide.baseUrl + placeholder;
 
   return (
     <ModelViewer
