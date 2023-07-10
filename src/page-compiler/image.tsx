@@ -9,8 +9,7 @@ export default function compileImage(
   const guide = context.guide;
   let src = node.url;
   if (src) {
-    const assetId = guide.resolveLink(src, context.pageId);
-    src = guide.getAssetUrl(assetId);
+    src = guide.baseUrl + src;
   }
   return (
     <img

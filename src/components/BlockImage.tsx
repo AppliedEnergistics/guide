@@ -12,7 +12,7 @@ export type BlockImageProps = {
 
 function BlockImage({ width, height, ...rest }: BlockImageProps) {
   const guide = useGuide();
-  const assetUrl = guide.baseUrl + "/" + rest["src@8"];
+  const assetUrl = guide.baseUrl + rest["src@4"];
   return (
     <img
       src={assetUrl}
