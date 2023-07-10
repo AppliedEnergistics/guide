@@ -23,10 +23,14 @@ export default class TextureManager {
 
   constructor(private readonly assetBaseUrl: string) {}
 
+  getFullUrl(url: string): string {
+    return this.assetBaseUrl + url;
+  }
+
   async getImage(url: string, builtIn = false): Promise<ImageBitmap> {
     let image = this.images[url];
     if (!this.enableCaching || !image) {
-      const fullUrl = builtIn ? url : this.assetBaseUrl + "/" + url;
+      const fullUrl = builtIn ? url : this.assetBaseUrl + url;
       console.debug("Loading image %s", fullUrl);
       try {
         this.loader.setOptions({

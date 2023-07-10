@@ -2,6 +2,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { ExpAnimatedTexturePart } from '../scene/exp-animated-texture-part.js';
 import { ExpCameraSettings } from '../scene/exp-camera-settings.js';
 import { ExpMesh } from '../scene/exp-mesh.js';
 
@@ -39,8 +40,18 @@ meshesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+animatedTextures(index: number, obj?:ExpAnimatedTexturePart):ExpAnimatedTexturePart|null {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new ExpAnimatedTexturePart()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+animatedTexturesLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startExpScene(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 }
 
 static addCamera(builder:flatbuffers.Builder, cameraOffset:flatbuffers.Offset) {
@@ -63,6 +74,22 @@ static startMeshesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addAnimatedTextures(builder:flatbuffers.Builder, animatedTexturesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, animatedTexturesOffset, 0);
+}
+
+static createAnimatedTexturesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startAnimatedTexturesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
 static endExpScene(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
@@ -76,10 +103,11 @@ static finishSizePrefixedExpSceneBuffer(builder:flatbuffers.Builder, offset:flat
   builder.finish(offset, undefined, true);
 }
 
-static createExpScene(builder:flatbuffers.Builder, cameraOffset:flatbuffers.Offset, meshesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createExpScene(builder:flatbuffers.Builder, cameraOffset:flatbuffers.Offset, meshesOffset:flatbuffers.Offset, animatedTexturesOffset:flatbuffers.Offset):flatbuffers.Offset {
   ExpScene.startExpScene(builder);
   ExpScene.addCamera(builder, cameraOffset);
   ExpScene.addMeshes(builder, meshesOffset);
+  ExpScene.addAnimatedTextures(builder, animatedTexturesOffset);
   return ExpScene.endExpScene(builder);
 }
 }

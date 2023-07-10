@@ -324,7 +324,26 @@ function buildHitTestGeometry(annotation: InWorldAnnotation): {
   return { geometry, position };
 }
 
+function normalizeAnnotation(annotation: InWorldAnnotation) {
+  if (annotation.type === "box") {
+    const minCorner = annotation.minCorner;
+    const maxCorner = annotation.maxCorner;
+    annotation.minCorner = [
+      Math.min(minCorner[0], maxCorner[0]),
+      Math.min(minCorner[1], maxCorner[1]),
+      Math.min(minCorner[2], maxCorner[2]),
+    ];
+    annotation.maxCorner = [
+      Math.max(minCorner[0], maxCorner[0]),
+      Math.max(minCorner[1], maxCorner[1]),
+      Math.max(minCorner[2], maxCorner[2]),
+    ];
+  }
+}
+
 export function buildInWorldAnnotation(annotation: InWorldAnnotation) {
+  normalizeAnnotation(annotation);
+
   const geometry = buildRenderGeometry(annotation);
 
   const group = new Group();

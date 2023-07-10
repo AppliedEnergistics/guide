@@ -148,7 +148,7 @@ async function initialize(
 
   const textureManager = new TextureManager(assetBaseUrl);
 
-  const { cameraProps, group } = await loadScene(
+  const { cameraProps, group, animatedTextureParts } = await loadScene(
     textureManager,
     source,
     abortSignal
@@ -268,13 +268,35 @@ async function initialize(
 
   let disposed = false;
 
-  const animate = function () {
+  let nextTick = 0;
+  const animate = function (time: number) {
     if (disposed) {
       return;
     }
-    requestAnimationFrame(animate);
 
     controls?.update();
+
+    // Update textures
+
+    if (time > nextTick) {
+      nextTick = time + 1000 / 20;
+
+      for (const animatedPart of animatedTextureParts) {
+        const { x, y, frameTextures, frames, currentFrame } = animatedPart;
+        if (++animatedPart.subFrame >= frames[currentFrame].time) {
+          animatedPart.currentFrame = (currentFrame + 1) % frames.length;
+          animatedPart.subFrame = 0;
+        }
+
+        for (const targetTexture of animatedPart.targetTextures) {
+          renderer.copyTextureToTexture(
+            new Vector2(x, y),
+            frameTextures[frames[currentFrame].index],
+            targetTexture
+          );
+        }
+      }
+    }
 
     renderer.render(scene, camera);
 
@@ -287,13 +309,9 @@ async function initialize(
     }
   };
 
-  viewportEl.append(renderer.domElement);
+  renderer.setAnimationLoop(animate);
 
-  try {
-    animate();
-  } catch (e) {
-    console.error("Failed to render %s", source, e);
-  }
+  viewportEl.append(renderer.domElement);
 
   return {
     dispose(): void {

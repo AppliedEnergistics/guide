@@ -20,37 +20,48 @@ static getSizePrefixedRootAsExpSampler(bb:flatbuffers.ByteBuffer, obj?:ExpSample
   return (obj || new ExpSampler()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-texture():string|null
-texture(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
-texture(optionalEncoding?:any):string|Uint8Array|null {
+textureId():string|null
+textureId(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+textureId(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-linearFiltering():boolean {
+texture():string|null
+texture(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+texture(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-useMipmaps():boolean {
+linearFiltering():boolean {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 }
 
+useMipmaps():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
 static startExpSampler(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(4);
+}
+
+static addTextureId(builder:flatbuffers.Builder, textureIdOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, textureIdOffset, 0);
 }
 
 static addTexture(builder:flatbuffers.Builder, textureOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, textureOffset, 0);
+  builder.addFieldOffset(1, textureOffset, 0);
 }
 
 static addLinearFiltering(builder:flatbuffers.Builder, linearFiltering:boolean) {
-  builder.addFieldInt8(1, +linearFiltering, +false);
+  builder.addFieldInt8(2, +linearFiltering, +false);
 }
 
 static addUseMipmaps(builder:flatbuffers.Builder, useMipmaps:boolean) {
-  builder.addFieldInt8(2, +useMipmaps, +false);
+  builder.addFieldInt8(3, +useMipmaps, +false);
 }
 
 static endExpSampler(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -58,8 +69,9 @@ static endExpSampler(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createExpSampler(builder:flatbuffers.Builder, textureOffset:flatbuffers.Offset, linearFiltering:boolean, useMipmaps:boolean):flatbuffers.Offset {
+static createExpSampler(builder:flatbuffers.Builder, textureIdOffset:flatbuffers.Offset, textureOffset:flatbuffers.Offset, linearFiltering:boolean, useMipmaps:boolean):flatbuffers.Offset {
   ExpSampler.startExpSampler(builder);
+  ExpSampler.addTextureId(builder, textureIdOffset);
   ExpSampler.addTexture(builder, textureOffset);
   ExpSampler.addLinearFiltering(builder, linearFiltering);
   ExpSampler.addUseMipmaps(builder, useMipmaps);

@@ -62,7 +62,8 @@ function setBlending(
 
 export default async function loadMaterial(
   textureManager: TextureManager,
-  expMaterial: ExpMaterial
+  expMaterial: ExpMaterial,
+  texturesById: Map<string, Texture[]>
 ): Promise<Material> {
   const samplers: (Texture | null)[] = [];
   for (let i = 0; i < expMaterial.samplersLength(); ++i) {
@@ -85,6 +86,16 @@ export default async function loadMaterial(
       sampler.useMipmaps()
     );
     samplers.push(texture);
+
+    const textureId = sampler.textureId();
+    if (textureId) {
+      const textures = texturesById.get(textureId);
+      if (!textures) {
+        texturesById.set(textureId, [texture]);
+      } else if (!textures.includes(texture)) {
+        textures.push(texture);
+      }
+    }
   }
 
   // These parameters are usually set via the shader
