@@ -129,6 +129,7 @@ export default async function loadScene(
       const frameY =
         Math.floor(j / animatedTexture.framesPerRow()) *
         animatedTexture.height();
+
       sourceFramePromises.push(
         createImageBitmap(
           sourceData,

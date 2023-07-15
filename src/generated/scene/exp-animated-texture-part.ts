@@ -57,33 +57,28 @@ framesPath(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-interpolate():boolean {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
-}
-
 frameCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 framesPerRow():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
 frames(index: number, obj?:ExpAnimatedTexturePartFrame):ExpAnimatedTexturePartFrame|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? (obj || new ExpAnimatedTexturePartFrame()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 4, this.bb!) : null;
 }
 
 framesLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startExpAnimatedTexturePart(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(9);
 }
 
 static addTextureId(builder:flatbuffers.Builder, textureIdOffset:flatbuffers.Offset) {
@@ -110,20 +105,16 @@ static addFramesPath(builder:flatbuffers.Builder, framesPathOffset:flatbuffers.O
   builder.addFieldOffset(5, framesPathOffset, 0);
 }
 
-static addInterpolate(builder:flatbuffers.Builder, interpolate:boolean) {
-  builder.addFieldInt8(6, +interpolate, +false);
-}
-
 static addFrameCount(builder:flatbuffers.Builder, frameCount:number) {
-  builder.addFieldInt32(7, frameCount, 0);
+  builder.addFieldInt32(6, frameCount, 0);
 }
 
 static addFramesPerRow(builder:flatbuffers.Builder, framesPerRow:number) {
-  builder.addFieldInt32(8, framesPerRow, 0);
+  builder.addFieldInt32(7, framesPerRow, 0);
 }
 
 static addFrames(builder:flatbuffers.Builder, framesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, framesOffset, 0);
+  builder.addFieldOffset(8, framesOffset, 0);
 }
 
 static startFramesVector(builder:flatbuffers.Builder, numElems:number) {
@@ -135,7 +126,7 @@ static endExpAnimatedTexturePart(builder:flatbuffers.Builder):flatbuffers.Offset
   return offset;
 }
 
-static createExpAnimatedTexturePart(builder:flatbuffers.Builder, textureIdOffset:flatbuffers.Offset, x:number, y:number, width:number, height:number, framesPathOffset:flatbuffers.Offset, interpolate:boolean, frameCount:number, framesPerRow:number, framesOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createExpAnimatedTexturePart(builder:flatbuffers.Builder, textureIdOffset:flatbuffers.Offset, x:number, y:number, width:number, height:number, framesPathOffset:flatbuffers.Offset, frameCount:number, framesPerRow:number, framesOffset:flatbuffers.Offset):flatbuffers.Offset {
   ExpAnimatedTexturePart.startExpAnimatedTexturePart(builder);
   ExpAnimatedTexturePart.addTextureId(builder, textureIdOffset);
   ExpAnimatedTexturePart.addX(builder, x);
@@ -143,7 +134,6 @@ static createExpAnimatedTexturePart(builder:flatbuffers.Builder, textureIdOffset
   ExpAnimatedTexturePart.addWidth(builder, width);
   ExpAnimatedTexturePart.addHeight(builder, height);
   ExpAnimatedTexturePart.addFramesPath(builder, framesPathOffset);
-  ExpAnimatedTexturePart.addInterpolate(builder, interpolate);
   ExpAnimatedTexturePart.addFrameCount(builder, frameCount);
   ExpAnimatedTexturePart.addFramesPerRow(builder, framesPerRow);
   ExpAnimatedTexturePart.addFrames(builder, framesOffset);
