@@ -19,6 +19,10 @@ const GuideVersionIndexContext = createContext<GuideVersionIndex | undefined>(
 
 export const GuideVersionIndexProvider = GuideVersionIndexContext.Provider;
 
+export function getVersionSlug(version: GuideVersion) {
+  return version.development ? "development" : version.gameVersion;
+}
+
 export function useGuideVersionIndex(): GuideVersionIndex {
   const guideVersions = useContext(GuideVersionIndexContext);
   if (!guideVersions) {

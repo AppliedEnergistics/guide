@@ -1,4 +1,5 @@
 import {
+  getVersionSlug,
   GuideVersion,
   GuideVersionIndex,
 } from "../../data/GuideVersionIndex.ts";
@@ -8,19 +9,11 @@ type GuideVersionSelectionProps = {
   versionIndex: GuideVersionIndex;
 };
 
-function getBaseUrl(version: GuideVersion): string {
-  if (version.development) {
-    return "#/development/";
-  } else {
-    return "#/" + version.gameVersion + "/";
-  }
-}
-
 function GuideVersion({ version }: { version: GuideVersion }) {
   const lastUpdate = new Date(version.generated);
 
   return (
-    <a href={getBaseUrl(version)} className={css.version}>
+    <a href={`#/${getVersionSlug(version)}/`} className={css.version}>
       <div className={css.minecraftLogo}>
         <span>{version.gameVersion}</span>
       </div>

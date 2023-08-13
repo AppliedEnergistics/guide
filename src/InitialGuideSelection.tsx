@@ -1,4 +1,5 @@
 import {
+  getVersionSlug,
   GuideVersion,
   GuideVersionIndex,
   useGuideVersionIndex,
@@ -20,16 +21,11 @@ function getSelectedGuideVersion(
     console.debug("No game present in fragment: '%s'", fragment);
     return undefined;
   }
-  const gameVersion = m[1];
-  let version: GuideVersion | undefined;
-  if (gameVersion === "development") {
-    version = versionIndex.versions.find((v) => v.development);
-  } else {
-    version = versionIndex.versions.find((v) => v.gameVersion === gameVersion);
-  }
+  const slug = m[1];
+  const version = versionIndex.versions.find((v) => getVersionSlug(v) === slug);
 
   if (!version) {
-    console.info("Unknown game version found in fragment: '%s'", gameVersion);
+    console.info("Unknown game version found in fragment: '%s'", slug);
   }
 
   return version;
@@ -66,7 +62,7 @@ function InitialGuideSelection() {
   if (selectedVersion) {
     return (
       <GuideLoader version={selectedVersion}>
-        <GuideRoot />
+        <GuideRoot pathPrefix={"/" + getVersionSlug(selectedVersion)} />
       </GuideLoader>
     );
   } else {

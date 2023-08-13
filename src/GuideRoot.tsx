@@ -10,8 +10,12 @@ import GuideShell from "./GuideShell.tsx";
 import GuidebookPageError from "./components/GuidebookPageError.tsx";
 import GuidebookPageNotFound from "./components/GuidebookPageNotFound.tsx";
 
-function createRouter(guide: Guide) {
-  const basename = "/" + guide.gameVersion;
+export type GuideRootProps = {
+  pathPrefix: string;
+};
+
+function createRouter(pathPrefix: string, guide: Guide) {
+  const basename = pathPrefix;
 
   let indexRoute: RouteObject | undefined = undefined;
   const indexPageId = guide.defaultNamespace + ":index.md";
@@ -56,9 +60,9 @@ function createRouter(guide: Guide) {
   );
 }
 
-function GuideRoot() {
+function GuideRoot({ pathPrefix }: GuideRootProps) {
   const guide = useGuide();
-  const router = useMemo(() => createRouter(guide), [guide]);
+  const router = useMemo(() => createRouter(pathPrefix, guide), [guide]);
 
   return <RouterProvider router={router}></RouterProvider>;
 }
