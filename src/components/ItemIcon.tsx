@@ -11,7 +11,7 @@ function ItemIcon({ id, nolink }: ItemIconProps) {
   const guide = useGuide();
 
   if (!id) {
-    return <ErrorText>itemId missing</ErrorText>;
+    return <ErrorText>ItemIcon is missing 'id'</ErrorText>;
   }
 
   const itemInfo = guide.getItemInfo(id);

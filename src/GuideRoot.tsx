@@ -7,6 +7,8 @@ import { useMemo } from "react";
 import { Guide, useGuide } from "./data/Guide.ts";
 import GuidebookPageRoute from "./components/GuidebookPageRoute.tsx";
 import GuideShell from "./GuideShell.tsx";
+import GuidebookPageError from "./components/GuidebookPageError.tsx";
+import GuidebookPageNotFound from "./components/GuidebookPageNotFound.tsx";
 
 function createRouter(guide: Guide) {
   const basename = "/" + guide.gameVersion;
@@ -36,7 +38,16 @@ function createRouter(guide: Guide) {
       {
         path: "/",
         element: <GuideShell />,
-        children: [...(indexRoute ? [indexRoute] : []), ...pageRoutes],
+        children: [
+          {
+            errorElement: <GuidebookPageError />,
+            children: [
+              ...(indexRoute ? [indexRoute] : []),
+              ...pageRoutes,
+              { path: "*", element: <GuidebookPageNotFound /> },
+            ],
+          },
+        ],
       },
     ],
     {
