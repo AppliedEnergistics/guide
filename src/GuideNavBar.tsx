@@ -38,20 +38,41 @@ function CollapseIndicator({ expanded }: { expanded: boolean }) {
 function CollapsibleNavbarNode({ node }: { node: NavigationNode }) {
   // TODO: should be expanded by default if current page is within this
   const [expanded, setExpanded] = useState(false);
-  return (
-    <>
-      <NavbarLink
-        node={node}
-        expanded={expanded}
-        onClick={() => setExpanded(!expanded)}
-      />
-      {expanded && (
-        <div className={css.subLevel}>
-          <NavbarLevel nodes={node.children} />
+  const content = expanded ? (
+    <div className={css.subLevel}>
+      <NavbarLevel nodes={node.children} />
+    </div>
+  ) : null;
+
+  if (node.hasPage) {
+    return (
+      <>
+        <NavbarLink
+          node={node}
+          expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        />
+        {content}
+      </>
+    );
+  } else {
+    return (
+      <>
+        <div
+          className={css.expandableHeader}
+          onClick={(e) => {
+            setExpanded(!expanded);
+            e.preventDefault();
+          }}
+        >
+          {node.icon && <ItemIcon nolink id={node.icon} />}
+          <CollapseIndicator expanded={expanded} />
+          {node.title}
         </div>
-      )}
-    </>
-  );
+        {content}
+      </>
+    );
+  }
 }
 
 function NavbarLevel({ nodes }: { nodes: NavigationNode[] }) {

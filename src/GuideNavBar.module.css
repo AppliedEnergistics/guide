@@ -7,7 +7,12 @@
     height: 1em;
 }
 
-.root a {
+.expandableHeader {
+    user-select: none;
+    cursor: pointer;
+}
+
+.root a, .expandableHeader {
     display: flex;
     color: var(--color-body-text);
     align-items: center;
@@ -16,7 +21,7 @@
     padding-left: 4px;
 }
 
-.root a:hover {
+.root a:hover, .expandableHeader:hover {
     color: var(--color-link);
     background-color: var(--color--navbar-row-hover);
     text-decoration: none;
