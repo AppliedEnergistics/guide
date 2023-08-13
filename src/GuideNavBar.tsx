@@ -1,5 +1,5 @@
 import { NavigationNode, useGuide } from "./data/Guide.ts";
-import { LinkProps, NavLink } from "react-router-dom";
+import { LinkProps, NavLink, useLocation } from "react-router-dom";
 import css from "./GuideNavBar.module.css";
 import { useState } from "react";
 import ItemIcon from "./components/ItemIcon.tsx";
@@ -35,9 +35,27 @@ function CollapseIndicator({ expanded }: { expanded: boolean }) {
   );
 }
 
+function isSelfOrChildCurrentPage(
+  currentPageId: string,
+  node: NavigationNode
+): boolean {
+  if (node.pageId === currentPageId) {
+    return true;
+  }
+  return node.children.some((childNode) =>
+    isSelfOrChildCurrentPage(currentPageId, childNode)
+  );
+}
+
 function CollapsibleNavbarNode({ node }: { node: NavigationNode }) {
-  // TODO: should be expanded by default if current page is within this
-  const [expanded, setExpanded] = useState(false);
+  const location = useLocation();
+  const currentPageId = location.pathname.replace(/^\//, "");
+  // Expanded by default if any of the current nodes descendents is the current page
+  const [expanded, setExpanded] = useState(() =>
+    node.children.some((child) =>
+      isSelfOrChildCurrentPage(currentPageId, child)
+    )
+  );
   const content = expanded ? (
     <div className={css.subLevel}>
       <NavbarLevel nodes={node.children} />
