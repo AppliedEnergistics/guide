@@ -157,6 +157,8 @@ export type GuideIndex = {
   pages: Record<string, ExportedPage>;
   navigationRootNodes: NavigationNode[];
 
+  startPageId?: string;
+
   items: Record<string, ItemInfo>;
   fluids: Record<string, FluidInfo>;
 

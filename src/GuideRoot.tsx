@@ -18,7 +18,8 @@ function createRouter(pathPrefix: string, guide: Guide) {
   const basename = pathPrefix;
 
   let indexRoute: RouteObject | undefined = undefined;
-  const indexPageId = guide.defaultNamespace + ":index.md";
+  const indexPageId =
+    guide.index.startPageId ?? guide.defaultNamespace + ":index.md";
   const indexPage = guide.index.pages[indexPageId];
   if (indexPage) {
     indexRoute = {
@@ -28,7 +29,7 @@ function createRouter(pathPrefix: string, guide: Guide) {
   }
 
   const pageRoutes = Object.entries(guide.index.pages).map(([pageId, page]) => {
-    const index = pageId === guide.defaultNamespace + ":index.md";
+    const index = pageId === indexPageId;
 
     return {
       path: "/" + pageId,
