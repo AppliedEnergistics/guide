@@ -10,6 +10,10 @@ import compileError from "./compileError.tsx";
 import compileList from "./list.tsx";
 import compileListItem from "./listItem.tsx";
 import compileTable from "./table.tsx";
+import type {
+  MdxFlowExpression,
+  MdxTextExpression,
+} from "mdast-util-mdx-expression";
 
 export type CompileContext = {
   guide: Guide;
@@ -60,6 +64,23 @@ function compileHeading(context: CompileContext, node: Heading): ReactElement {
     null,
     context.compileChildren(node)
   );
+}
+
+function compileTextExpression(
+  _context: CompileContext,
+  node: MdxTextExpression | MdxFlowExpression
+): ReactNode {
+  // We support simple strings, but not actual JS programs
+  let m = node.value.match(/^\s*"([^"]+)"\s*$/);
+  if (m) {
+    return m[1];
+  }
+  m = node.value.match(/^\s*'([^"]+)'\s*$/);
+  if (m) {
+    return m[1];
+  }
+
+  return compileError(node, "Unsupported JSX expression: " + node.value);
 }
 
 function compileContent(
@@ -124,11 +145,14 @@ function compileContent(
       return compileListItem(context, node, parent);
     case "table":
       return compileTable(context, node);
+    // Expressions like "{' '}"
+    case "mdxFlowExpression":
+    case "mdxTextExpression":
+      return compileTextExpression(context, node);
     // Text- and Block-Level JSX or HTML Element
     case "mdxJsxFlowElement":
     case "mdxJsxTextElement":
       return compileCustomElement(context, node);
-
     default:
       return compileError(node, "Unhandled node type");
   }
