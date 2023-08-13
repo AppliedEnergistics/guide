@@ -77,8 +77,8 @@ function compileContent(
     case "heading":
       return compileHeading(context, node);
     ////////////////////////// Phrasing Content
-    //case "break":
-    //  break;
+    case "break":
+      return <br />;
     //case "footnoteReference":
     //  break;
     case "image":
