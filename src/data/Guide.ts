@@ -189,6 +189,11 @@ export class Guide {
 
   readonly pageByItemIndex: ItemIndex;
 
+  /**
+   * Maps category name to list of page-ids within that category.
+   */
+  readonly pagesByCategoryIndex: CategoryIndex;
+
   private readonly recipesForItems = new Map<string, TaggedRecipe[]>();
 
   constructor(
@@ -221,12 +226,27 @@ export class Guide {
       }
     }
 
-    const itemIndex =
-      index.pageIndices["appeng.client.guidebook.indices.ItemIndex"];
-    this.pageByItemIndex = new Map<string, string>(
+    this.pageByItemIndex = Guide.indexToMap(
+      index,
+      "appeng.client.guidebook.indices.ItemIndex"
+    );
+    this.pagesByCategoryIndex = Guide.indexToMap(
+      index,
+      "appeng.client.guidebook.indices.CategoryIndex"
+    );
+  }
+
+  private static indexToMap<T>(
+    root: GuideIndex,
+    indexName: string
+  ): Map<string, T> {
+    // Indices are serialized as [key, value, key, value, key, value] in one large array.
+    // Convert this to [[key,value], [key,value], ...] and pass it to the map ctor.
+    const elements = root.pageIndices[indexName] ?? [];
+    return new Map<string, T>(
       (function* () {
-        for (let i = 0; i < itemIndex.length; i += 2) {
-          yield [itemIndex[i], itemIndex[i + 1]];
+        for (let i = 0; i < elements.length; i += 2) {
+          yield [elements[i], elements[i + 1]];
         }
       })()
     );

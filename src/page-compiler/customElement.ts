@@ -14,6 +14,7 @@ import Column from "../components/Column.tsx";
 import compileError from "./compileError.tsx";
 import compileGameScene from "./compileGameScene.tsx";
 import { getAttributes } from "./mdxUtils.ts";
+import CategoryIndex from "../components/CategoryIndex.tsx";
 
 type CustomElementCompiler = (
   context: CompileContext,
@@ -28,6 +29,7 @@ const components: Record<
   br: "br",
   div: "div",
   BlockImage,
+  CategoryIndex,
   ItemLink,
   ItemImage,
   ItemIcon,
