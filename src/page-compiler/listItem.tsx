@@ -1,6 +1,6 @@
 import { CompileContext } from "./compilePage.tsx";
 import { List, ListItem, Parent } from "mdast";
-import React, { ComponentProps, ReactNode } from "react";
+import React, { ComponentProps, createElement, ReactNode } from "react";
 import { Node } from "unist";
 
 function isList(node: Node): node is List {
@@ -100,5 +100,5 @@ export default function compileListItem(
     children.push("\n");
   }
 
-  return <li {...properties}>{children}</li>;
+  return createElement("li", properties, ...children);
 }
