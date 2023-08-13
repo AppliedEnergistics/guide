@@ -19,7 +19,7 @@ function ItemLink({ id, children, tooltip }: ItemLinkProps) {
   id = id.replaceAll(/\s+/g, "");
   id = guide.resolveId(id);
 
-  const pageUrl = guide.getPageUrlForItem(id);
+  const pageId = guide.getPageUrlForItem(id);
   const itemInfo = guide.tryGetItemInfo(id);
   if (!itemInfo) {
     return <ErrorText>Missing item {id}</ErrorText>;
@@ -29,17 +29,19 @@ function ItemLink({ id, children, tooltip }: ItemLinkProps) {
     children = itemInfo.displayName;
   }
 
-  if (!pathname.endsWith("/")) {
-    pathname += "/";
+  // Try deducing current page id
+  let currentPageId = pathname;
+  if (currentPageId.startsWith("/")) {
+    currentPageId = currentPageId.substring(1);
   }
 
   let content;
   // Do not render a link if we're already on that page, or there is no link
-  if (!pageUrl || pathname === pageUrl) {
+  if (!pageId || currentPageId === pageId) {
     content = <span className={css.itemTooltip}>{children}</span>;
   } else {
     content = (
-      <Link to={"/" + pageUrl} relative={"route"}>
+      <Link to={"/" + pageId} relative={"route"}>
         {children}
       </Link>
     );
