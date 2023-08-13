@@ -6,6 +6,7 @@ export type GuideVersion = {
   modVersion: string;
   generated: number;
   url: string;
+  development: boolean;
 };
 
 export type GuideVersionIndex = {

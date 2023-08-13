@@ -21,10 +21,13 @@ function getSelectedGuideVersion(
     return undefined;
   }
   const gameVersion = m[1];
+  let version: GuideVersion | undefined;
+  if (gameVersion === "development") {
+    version = versionIndex.versions.find((v) => v.development);
+  } else {
+    version = versionIndex.versions.find((v) => v.gameVersion === gameVersion);
+  }
 
-  const version = versionIndex.versions.find(
-    (v) => v.gameVersion === gameVersion
-  );
   if (!version) {
     console.info("Unknown game version found in fragment: '%s'", gameVersion);
   }

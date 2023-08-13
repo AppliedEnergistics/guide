@@ -11,7 +11,9 @@ export default {
         const versions = [];
 
         for (const prefix of response.delimitedPrefixes) {
-            if (!prefix.match(/^minecraft-([^/]+)\/$/)) {
+            const devVersion = prefix === "development/";
+
+            if (!prefix.match(/^minecraft-([^/]+)\/$/) && !devVersion) {
                 continue;
             }
             const indexFile = prefix + 'index.json';
@@ -31,7 +33,8 @@ export default {
                     gameVersion: versionIndexContent.gameVersion,
                     modVersion: versionIndexContent.modVersion,
                     // This is where the actual data lives in V1 guides
-                    url: 'https://guide-assets.appliedenergistics.org/' + indexFile
+                    url: 'https://guide-assets.appliedenergistics.org/' + indexFile,
+                    development: devVersion
                 })
             } catch (e) {
                 console.error("Failed to process index file %s", indexFile);

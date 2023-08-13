@@ -8,15 +8,26 @@ type GuideVersionSelectionProps = {
   versionIndex: GuideVersionIndex;
 };
 
+function getBaseUrl(version: GuideVersion): string {
+  if (version.development) {
+    return "#/development/";
+  } else {
+    return "#/" + version.gameVersion + "/";
+  }
+}
+
 function GuideVersion({ version }: { version: GuideVersion }) {
   const lastUpdate = new Date(version.generated);
 
   return (
-    <a href={"#/" + version.gameVersion + "/"} className={css.version}>
+    <a href={getBaseUrl(version)} className={css.version}>
       <div className={css.minecraftLogo}>
         <span>{version.gameVersion}</span>
       </div>
-      <h2>Applied Energistics 2 {version.modVersion}</h2>
+      <h2>
+        Applied Energistics 2 {version.modVersion}
+        {version.development ? " (Development)" : null}
+      </h2>
       <div>Last Updated: {lastUpdate.toLocaleDateString()}</div>
     </a>
   );
