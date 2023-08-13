@@ -25,9 +25,6 @@ const components: Record<
   string,
   FunctionComponent<any> | ComponentClass<any> | string
 > = {
-  a: "a",
-  br: "br",
-  div: "div",
   BlockImage,
   CategoryIndex,
   ItemLink,
@@ -44,6 +41,37 @@ const customCompilers: Record<string, CustomElementCompiler> = {
   GameScene: compileGameScene,
 };
 
+function compileHtmlTag(
+  tagName: string,
+  context: CompileContext,
+  node: MdxJsxFlowElement | MdxJsxTextElement
+) {
+  const props: Record<string, string | boolean> = {};
+  for (const attribute of node.attributes) {
+    if (attribute.type === "mdxJsxAttribute") {
+      if (typeof attribute.value === "string") {
+        props[attribute.name] = attribute.value;
+      } else if (attribute.value === null) {
+        props[attribute.name] = true;
+      } else {
+        return compileError(node, "Unsupported attribute value");
+      }
+    } else {
+      return compileError(node, "Unsupported attribute type");
+    }
+  }
+
+  // Translate some source links automatically
+  if (tagName === "video") {
+    const src = String(props["src"]);
+    if (src) {
+      props["src"] = context.guide.baseUrl + src;
+    }
+  }
+
+  return React.createElement(tagName, props, context.compileChildren(node));
+}
+
 export default function compileCustomElement(
   context: CompileContext,
   node: MdxJsxFlowElement | MdxJsxTextElement
@@ -58,6 +86,11 @@ export default function compileCustomElement(
 
   const reactComponent = components[name];
   if (!reactComponent) {
+    // Auto-compile HTML tags
+    if (name[0].match(/[a-z]/)) {
+      return compileHtmlTag(name, context, node);
+    }
+
     return compileError(node, "Unknown tag");
   }
 
