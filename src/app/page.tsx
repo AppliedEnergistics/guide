@@ -14,7 +14,7 @@ function GuideVersion({ version }: { version: GuideVersion }) {
         <span>{version.gameVersion}</span>
       </div>
       <h2>
-        Applied Energistics 2 {version.modVersion}
+        Applied Energistics 2 for Minecraft {version.gameVersion}
         {version.development ? " (Development)" : null}
       </h2>
       <div>Last Updated: {lastUpdate.toLocaleDateString()}</div>
@@ -26,7 +26,7 @@ function GuideVersionSelection() {
   return (
     <div className={css.root}>
       <h1>Guide Versions</h1>
-      {guideVersions.map((version) => (
+      {guideVersions.reverse().map((version) => (
         <GuideVersion key={version.slug} version={version} />
       ))}
     </div>
