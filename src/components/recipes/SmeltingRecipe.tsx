@@ -2,29 +2,30 @@ import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
 import smelt from "./smelt.png";
 import RecipeArrow from "./RecipeArrow";
-import { SmeltingRecipeInfo } from "../../data/Guide.ts";
+import { SmeltingRecipeInfo } from "../../build-data/Guide.ts";
 import MinecraftFrame from "../MinecraftFrame.tsx";
-import ItemIcon from "../ItemIcon.tsx";
+import ItemIcon from "@component/guide-elements/ItemIcon.tsx";
+import { CustomGuideElementProps } from "@component/CustomGuideElementProps.ts";
 
-export interface SmeltingRecipeProps {
+export interface SmeltingRecipeProps extends CustomGuideElementProps {
   recipe: SmeltingRecipeInfo;
 }
 
-function SmeltingRecipe({ recipe }: SmeltingRecipeProps) {
+function SmeltingRecipe({ recipe, ...props }: SmeltingRecipeProps) {
   return (
     <MinecraftFrame>
       <div className={css.recipeBoxLayout}>
         <div>
-          <ItemIcon nolink id="minecraft:furnace" /> Smelting
+          <ItemIcon {...props} nolink id="minecraft:furnace" /> Smelting
         </div>
         <div className={css.smeltingInputBox}>
-          <RecipeIngredient itemIds={recipe.ingredient} />
+          <RecipeIngredient {...props} itemIds={recipe.ingredient} />
           <div>
-            <img className="item-icon" src={smelt} alt="fire" />
+            <img className="item-icon" {...smelt} alt="fire" />
           </div>
         </div>
         <RecipeArrow />
-        <RecipeIngredient itemIds={[recipe.resultItem]} />
+        <RecipeIngredient {...props} itemIds={[recipe.resultItem]} />
       </div>
     </MinecraftFrame>
   );

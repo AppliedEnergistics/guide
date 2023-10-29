@@ -1,10 +1,10 @@
 import * as flatbuffers from "flatbuffers";
-import { ExpScene } from "../../generated/scene.ts";
+import { ExpScene } from "@generated/scene.ts";
 import { Group, Mesh, Texture } from "three";
 import TextureManager from "./TextureManager.ts";
 import loadGeometry from "./loadGeometry.ts";
 import loadMaterial from "./loadMaterial.ts";
-import decompress from "../../decompress.ts";
+import decompress from "../decompress.ts";
 
 type LoadedScene = {
   group: Group;
@@ -46,7 +46,7 @@ async function decompressResponse(response: Response) {
     "Loaded %s, %d byte compressed, %d byte uncompressed",
     response.url,
     blob.size,
-    sceneContent.byteLength
+    sceneContent.byteLength,
   );
 
   return sceneContent;
@@ -55,7 +55,7 @@ async function decompressResponse(response: Response) {
 export default async function loadScene(
   textureManager: TextureManager,
   source: string,
-  abortSignal: AbortSignal
+  abortSignal: AbortSignal,
 ): Promise<LoadedScene> {
   const response = await fetch(source, { signal: abortSignal });
   if (!response.ok) {
@@ -85,7 +85,7 @@ export default async function loadScene(
     const material = await loadMaterial(
       textureManager,
       expMaterial,
-      texturesById
+      texturesById,
     );
     const mesh = new Mesh(geometry, material);
     mesh.frustumCulled = false;
@@ -115,7 +115,7 @@ export default async function loadScene(
       console.error(
         "Failed to retrieve animated texture %s: %o",
         fullUrl,
-        sourceDataResponse
+        sourceDataResponse,
       );
       continue;
     }
@@ -136,8 +136,8 @@ export default async function loadScene(
           frameX,
           frameY,
           animatedTexture.width(),
-          animatedTexture.height()
-        )
+          animatedTexture.height(),
+        ),
       );
     }
     const frameTextures = (await Promise.allSettled(sourceFramePromises)).map(
@@ -147,7 +147,7 @@ export default async function loadScene(
         } else {
           return null!; // TODO
         }
-      }
+      },
     );
 
     const targetTextures =

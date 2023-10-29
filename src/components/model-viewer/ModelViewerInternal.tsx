@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   ReactNode,
   RefObject,
@@ -20,7 +22,7 @@ import {
 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import css from "./ModelViewerInternal.module.css";
-import { guiScaledDimension } from "../../css.ts";
+import { guiScaledDimension } from "@component/css.ts";
 import ErrorText from "../ErrorText.tsx";
 import loadScene from "./loadScene.ts";
 
@@ -29,9 +31,10 @@ import { buildInWorldAnnotation } from "./buildInWorldAnnotation.ts";
 import addLevelLighting from "./addSceneLighting.ts";
 import buildOverlayAnnotation from "./buildOverlayAnnotations.ts";
 import TextureManager from "./TextureManager.ts";
-import plusIcon from "../../assets/button_plus.png";
-import minusIcon from "../../assets/button_minus.png";
-import resetIcon from "../../assets/button_reset.png";
+import plusIcon from "@assets/button_plus.png";
+import minusIcon from "@assets/button_minus.png";
+import resetIcon from "@assets/button_reset.png";
+import Image from "next/image";
 
 const DEBUG = false;
 
@@ -113,7 +116,7 @@ const raycaster = new Raycaster();
 function getTooltipContent(
   mousePos: Vector2,
   camera: Camera,
-  scene: Scene
+  scene: Scene,
 ): React.ReactNode | undefined {
   raycaster.setFromCamera(mousePos, camera);
   const intersections = raycaster.intersectObjects(scene.children);
@@ -137,7 +140,7 @@ async function initialize(
   mousePosRef: RefObject<Vector2>,
   setTooltipObject: (object: ReactNode | undefined) => void,
   abortSignal: AbortSignal,
-  originalWidth: number
+  originalWidth: number,
 ): Promise<ControlInterface> {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -151,7 +154,7 @@ async function initialize(
   const { cameraProps, group, animatedTextureParts } = await loadScene(
     textureManager,
     source,
-    abortSignal
+    abortSignal,
   );
 
   // Center the scene
@@ -213,8 +216,8 @@ async function initialize(
       MathUtils.degToRad(-cameraProps.pitch),
       MathUtils.degToRad(-cameraProps.yaw),
       MathUtils.degToRad(-cameraProps.roll),
-      "YXZ"
-    )
+      "YXZ",
+    ),
   );
   camera.updateProjectionMatrix();
   scene.add(camera);
@@ -292,7 +295,7 @@ async function initialize(
           renderer.copyTextureToTexture(
             new Vector2(x, y),
             frameTextures[frames[currentFrame].index],
-            targetTexture
+            targetTexture,
           );
         }
       }
@@ -401,7 +404,7 @@ function ModelViewerInternal({
       mousePos,
       setTooltipObject,
       abortController.signal,
-      width
+      width,
     )
       .then((control) => {
         if (disposed) {
@@ -420,7 +423,7 @@ function ModelViewerInternal({
           "An error occurred while loading scene %s: %o",
           src,
           err,
-          err.stack
+          err.stack,
         );
         setError(err);
       });
@@ -506,17 +509,17 @@ function ModelViewerInternal({
         <div className={css.controls}>
           <MinecraftTooltip content={"Zoom in"}>
             <button onClick={zoomIn}>
-              <img src={plusIcon} alt="" />
+              <Image src={plusIcon} alt="" />
             </button>
           </MinecraftTooltip>
           <MinecraftTooltip content={"Zoom out"}>
             <button onClick={zoomOut}>
-              <img src={minusIcon} alt="" />
+              <Image src={minusIcon} alt="" />
             </button>
           </MinecraftTooltip>
           <MinecraftTooltip content={"Reset view"}>
             <button onClick={resetView}>
-              <img src={resetIcon} alt="" />
+              <Image src={resetIcon} alt="" />
             </button>
           </MinecraftTooltip>
         </div>

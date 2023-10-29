@@ -1,13 +1,14 @@
 import { PropsWithChildren } from "react";
-import ItemIcon from "./ItemIcon";
 import css from "./ItemTooltip.module.css";
 import "tippy.js/dist/svg-arrow.css";
-import { ItemInfo } from "../data/Guide.ts";
+import { ItemInfo } from "../build-data/Guide.ts";
 import MinecraftTooltip from "./MinecraftTooltip.tsx";
+import ItemInfoImage from "@component/ItemInfoImage.tsx";
 
 export type TooltipMode = "text" | "icon";
 
 export interface ItemTooltipProps {
+  baseUrl: string;
   item: ItemInfo;
   mode?: TooltipMode;
 }
@@ -41,10 +42,16 @@ function ItemName({ item }: { item: ItemInfo }) {
 /**
  * Displays the content of an item tooltip.
  */
-function ItemTooltipContent({ item, mode = "icon" }: ItemTooltipProps) {
+function ItemTooltipContent({
+  baseUrl,
+  item,
+  mode = "icon",
+}: ItemTooltipProps) {
   return (
     <>
-      {mode === "icon" ? <ItemIcon id={item.id} nolink /> : null}
+      {mode === "icon" ? (
+        <ItemInfoImage baseUrl={baseUrl} itemInfo={item} />
+      ) : null}
       {mode === "text" ? <ItemName item={item} /> : null}
     </>
   );

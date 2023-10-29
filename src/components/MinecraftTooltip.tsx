@@ -1,3 +1,5 @@
+"use client";
+
 import Tippy, { TippyProps } from "@tippyjs/react";
 import { followCursor, inlinePositioning } from "tippy.js";
 import css from "./MinecraftTooltip.module.css";

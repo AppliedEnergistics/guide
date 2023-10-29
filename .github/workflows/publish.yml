@@ -31,16 +31,18 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "20"
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Download Assets
+        run: node scripts/download_data.mjs
       - name: Build
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./dist
+          path: ./out
 
   # Deployment job
   deploy:

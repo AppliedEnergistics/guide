@@ -2,14 +2,15 @@ import CraftingRecipe from "./CraftingRecipe";
 import InscriberRecipe from "./InscriberRecipe";
 import SmeltingRecipe from "./SmeltingRecipe";
 import css from "./recipe.module.css";
-import { RecipeType, TaggedRecipe, useGuide } from "../../data/Guide.ts";
+import { RecipeType, TaggedRecipe } from "../../build-data/Guide.ts";
 import ErrorText from "../ErrorText.tsx";
 import React, { JSXElementConstructor } from "react";
 import TransformRecipe from "./TransformRecipe.tsx";
 import ChargerRecipe from "./ChargerRecipe.tsx";
 import SmithingRecipe from "./SmithingRecipe.tsx";
+import { CustomGuideElementProps } from "@component/CustomGuideElementProps.ts";
 
-export type RecipeProps =
+export type RecipeProps = (
   | {
       /**
        * Recipe ID
@@ -17,7 +18,9 @@ export type RecipeProps =
       id: string;
       recipe?: never;
     }
-  | { id?: never; recipe: TaggedRecipe };
+  | { id?: never; recipe: TaggedRecipe }
+) &
+  CustomGuideElementProps;
 
 function UnsupportedRecipeType({ recipe }: { recipe: TaggedRecipe }) {
   return <ErrorText>Unsupported Recipe Type ({recipe.type})</ErrorText>;
@@ -35,17 +38,13 @@ const RecipeTypeMap: Record<RecipeType, JSXElementConstructor<any>> = {
   [RecipeType.MatterCannonAmmoType]: UnsupportedRecipeType,
 };
 
-function Recipe(props: RecipeProps) {
-  const guide = useGuide();
-  let recipe: TaggedRecipe | undefined;
-  if (typeof props.recipe !== "undefined") {
-    recipe = props.recipe;
-  } else {
-    recipe = guide.getRecipeById(props.id);
+function Recipe({ id, recipe, ...props }: RecipeProps) {
+  if (recipe === undefined) {
+    recipe = props.guide.getRecipeById(id);
   }
 
   if (!recipe) {
-    return <ErrorText>Missing recipe {props.id}</ErrorText>;
+    return <ErrorText>Missing recipe {id}</ErrorText>;
   }
 
   const componentType = RecipeTypeMap[recipe.type];
@@ -55,6 +54,7 @@ function Recipe(props: RecipeProps) {
 
   const recipeEl = React.createElement(componentType, {
     recipe,
+    ...props,
   });
 
   return <div className={css.recipeContainer}>{recipeEl}</div>;

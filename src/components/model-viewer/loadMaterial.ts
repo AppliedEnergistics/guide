@@ -1,4 +1,4 @@
-import { ExpMaterial } from "../../generated/scene/exp-material.ts";
+import { ExpMaterial } from "@generated/scene/exp-material.ts";
 import {
   AdditiveBlending,
   CustomBlending,
@@ -18,11 +18,11 @@ import {
 } from "three";
 import shaderInfos from "./shaderInfo.ts";
 import TextureManager from "./TextureManager.ts";
-import { ExpTransparency } from "../../generated/scene/exp-transparency.ts";
+import { ExpTransparency } from "@generated/scene/exp-transparency.ts";
 
 function setBlending(
   expMaterial: ExpMaterial,
-  materialParams: MeshLambertMaterialParameters
+  materialParams: MeshLambertMaterialParameters,
 ) {
   switch (expMaterial.transparency()) {
     case ExpTransparency.DISABLED:
@@ -63,13 +63,13 @@ function setBlending(
 export default async function loadMaterial(
   textureManager: TextureManager,
   expMaterial: ExpMaterial,
-  texturesById: Map<string, Texture[]>
+  texturesById: Map<string, Texture[]>,
 ): Promise<Material> {
   const samplers: (Texture | null)[] = [];
   for (let i = 0; i < expMaterial.samplersLength(); ++i) {
     const sampler = expMaterial.samplers(i);
     if (!sampler) {
-      console.warn("Material is missing sampler data %d", i);
+      console.warn("Material is missing sampler build-data %d", i);
       continue;
     }
 
@@ -83,7 +83,7 @@ export default async function loadMaterial(
     const texture = await textureManager.get(
       textureUrl,
       sampler.linearFiltering(),
-      sampler.useMipmaps()
+      sampler.useMipmaps(),
     );
     samplers.push(texture);
 

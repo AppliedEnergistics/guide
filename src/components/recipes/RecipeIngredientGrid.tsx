@@ -1,7 +1,8 @@
 import css from "./recipe.module.css";
 import RecipeIngredient from "./RecipeIngredient";
+import { CustomGuideElementProps } from "@component/CustomGuideElementProps.ts";
 
-export type RecipeIngredientsProps =
+export type RecipeIngredientsProps = (
   | {
       ingredients: string[][];
       shapeless: true;
@@ -11,7 +12,9 @@ export type RecipeIngredientsProps =
       shapeless: false;
       width: number;
       height: number;
-    };
+    }
+) &
+  CustomGuideElementProps;
 
 function RecipeIngredientGrid({
   ingredients,
@@ -51,7 +54,9 @@ function RecipeIngredientGrid({
     <div className={className}>
       {ingredients.map((ingredient, slot) => {
         if (ingredient.length > 0) {
-          return <RecipeIngredient key={slot} itemIds={ingredient} />;
+          return (
+            <RecipeIngredient {...props} key={slot} itemIds={ingredient} />
+          );
         } else {
           return <div key={slot} className={css.emptyIngredientBox} />;
         }

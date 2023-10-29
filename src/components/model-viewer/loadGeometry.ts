@@ -5,10 +5,10 @@ import {
   Uint16BufferAttribute,
   Uint32BufferAttribute,
 } from "three";
-import { ExpIndexElementType } from "../../generated/scene/exp-index-element-type.ts";
-import { ExpMesh } from "../../generated/scene/exp-mesh.ts";
-import { ExpVertexElementUsage } from "../../generated/scene/exp-vertex-element-usage.ts";
-import { ExpVertexElementType } from "../../generated/scene/exp-vertex-element-type.ts";
+import { ExpIndexElementType } from "@generated/scene/exp-index-element-type.ts";
+import { ExpMesh } from "@generated/scene/exp-mesh.ts";
+import { ExpVertexElementUsage } from "@generated/scene/exp-vertex-element-usage.ts";
+import { ExpVertexElementType } from "@generated/scene/exp-vertex-element-type.ts";
 
 interface TypedArrayCtor<T> {
   readonly BYTES_PER_ELEMENT: number;
@@ -18,28 +18,28 @@ interface TypedArrayCtor<T> {
 
 function castArray<T extends ArrayLike<number>>(
   base: ArrayBufferView,
-  ctor: TypedArrayCtor<T>
+  ctor: TypedArrayCtor<T>,
 ): T {
   return new ctor(
     base.buffer,
     base.byteOffset,
-    base.byteLength / ctor.BYTES_PER_ELEMENT
+    base.byteLength / ctor.BYTES_PER_ELEMENT,
   );
 }
 
 export default function loadGeometry(
-  expMesh: ExpMesh
+  expMesh: ExpMesh,
 ): BufferGeometry | undefined {
   const vertexBufferData = expMesh.vertexBufferArray();
   const indexBufferData = expMesh.indexBufferArray();
   if (!vertexBufferData || !indexBufferData) {
-    console.warn("Missing vertex or index buffer data");
+    console.warn("Missing vertex or index buffer build-data");
     return;
   }
   console.debug(
     "Vertex buffer size: %d, Index buffer size: %d",
     vertexBufferData.byteLength,
-    indexBufferData.byteLength
+    indexBufferData.byteLength,
   );
   const expVertexFormat = expMesh.vertexFormat();
   if (!expVertexFormat) {
@@ -89,7 +89,7 @@ export default function loadGeometry(
       default:
         console.warn(
           "Unsupported vertex format attribute usage: %o",
-          vertexEl.usage()
+          vertexEl.usage(),
         );
         continue;
     }
@@ -99,7 +99,7 @@ export default function loadGeometry(
       attributeName,
       vertexEl.count(),
       vertexEl.offset(),
-      vertexEl.normalized()
+      vertexEl.normalized(),
     );
 
     let interleavedCtor: any;
@@ -135,7 +135,7 @@ export default function loadGeometry(
 
     const interleavedBuffer = new InterleavedBuffer(
       array,
-      expVertexFormat.vertexSize() / bytesPerEl
+      expVertexFormat.vertexSize() / bytesPerEl,
     );
 
     geometry.setAttribute(
@@ -144,8 +144,8 @@ export default function loadGeometry(
         interleavedBuffer,
         vertexEl.count(),
         vertexEl.offset() / bytesPerEl,
-        vertexEl.normalized()
-      )
+        vertexEl.normalized(),
+      ),
     );
   }
 

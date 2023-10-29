@@ -1,28 +1,24 @@
 import { useEffect, useState } from "react";
 import css from "./recipe.module.css";
-import ItemIcon from "../ItemIcon";
+import ItemIcon from "@component/guide-elements/ItemIcon.tsx";
+import { CustomGuideElementProps } from "@component/CustomGuideElementProps.ts";
+import CyclingIngredient from "@component/recipes/CyclingIngredient.tsx";
 
-export interface RecipeIngredientProps {
+export interface RecipeIngredientProps extends CustomGuideElementProps {
   itemIds: string[];
 }
 
-function CyclingIngredient({ itemIds }: RecipeIngredientProps) {
-  const [visibleIndex, setVisibleIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVisibleIndex((idx) => ++idx % itemIds.length);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [itemIds]);
-
-  return <ItemIcon id={itemIds[visibleIndex]} />;
-}
-
-function RecipeIngredient({ itemIds }: RecipeIngredientProps) {
+function RecipeIngredient({ itemIds, ...props }: RecipeIngredientProps) {
   return (
     <div className={css.ingredientBox}>
-      {itemIds.length > 1 && <CyclingIngredient itemIds={itemIds} />}
-      {itemIds.length === 1 && <ItemIcon id={itemIds[0]} />}
+      {itemIds.length > 1 && (
+        <CyclingIngredient>
+          {itemIds.map((itemId) => (
+            <ItemIcon {...props} id={itemId} key={itemId} />
+          ))}
+        </CyclingIngredient>
+      )}
+      {itemIds.length === 1 && <ItemIcon {...props} id={itemIds[0]} />}
     </div>
   );
 }
