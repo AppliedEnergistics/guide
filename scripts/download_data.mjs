@@ -37,7 +37,7 @@ async function downloadVersion(versionInfo) {
   const { format, generated, modVersion, gameVersion, guideDataPath } =
     versionDetails;
 
-  const versionSlug = development ? "development" : "minecraft-" + gameVersion;
+  const versionSlug = development ? "development" : gameVersion;
 
   const guideDataUrl = new URL(guideDataPath, url);
   console.info("Downloading %s", guideDataUrl);
