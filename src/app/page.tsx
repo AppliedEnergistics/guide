@@ -26,9 +26,11 @@ function GuideVersionSelection() {
   return (
     <div className={css.root}>
       <h1>Guide Versions</h1>
-      {guideVersions.reverse().map((version) => (
-        <GuideVersion key={version.slug} version={version} />
-      ))}
+      {guideVersions
+        .filter((gv) => !gv.development)
+        .map((version) => (
+          <GuideVersion key={version.slug} version={version} />
+        ))}
     </div>
   );
 }

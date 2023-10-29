@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, ReactElement, useContext } from "react";
 
-type GuidePageTitleSetter = (title: string) => void;
+type GuidePageTitleSetter = (title: ReactElement | null) => void;
 
 const context = createContext<GuidePageTitleSetter>(() => {});
 

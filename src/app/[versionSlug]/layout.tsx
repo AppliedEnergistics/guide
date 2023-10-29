@@ -3,7 +3,14 @@ import { NavBarNode } from "@component/nav/GuideNavBar.tsx";
 import GuideShell from "@component/nav/GuideShell.tsx";
 import { getGuide, getPagePath } from "../../build-data";
 import { Guide, NavigationNode } from "../../build-data/Guide.ts";
+import { guideVersions } from "../../build-data/GuideVersionIndex.ts";
 
+// Return a list of `params` to populate the [slug] dynamic segment
+export function generateStaticParams() {
+  return guideVersions.map((version) => ({
+    versionSlug: version.slug,
+  }));
+}
 function buildNavigationNode(guide: Guide, node: NavigationNode): NavBarNode {
   let href: string | undefined;
   let icon: string | undefined;

@@ -53,7 +53,6 @@ async function downloadVersion(versionInfo) {
 
   // Extract all pages:
   const guideData = JSON.parse(unzippedGuideData.toString());
-  const pages = Object.keys(guideData.pages);
 
   // URL which assets are relative to
   const baseUrl = new URL(".", guideDataUrl);
@@ -68,7 +67,6 @@ async function downloadVersion(versionInfo) {
     development,
     slug: versionSlug,
     dataFilename,
-    pages,
     defaultNamespace: guideData.defaultNamespace,
   };
 }
@@ -91,39 +89,7 @@ for (let i = 0; i < results.length; i++) {
   }
 }
 
-// Build a global page list
-const versionInfoList = [];
-const pagePaths = [];
-for (let { pages, ...versionInfo } of downloadedVersions) {
-  versionInfoList.push(versionInfo);
-
-  // Uses next.js type paths: Array<string | { params: Params; locale?: string }>
-  const versionSlug = versionInfo.slug;
-  for (let pageId of pages) {
-    // Manipulate the page path
-    const [namespace, markdownPath] = pageId.split(":");
-    const pathSegments = [];
-    if (namespace !== versionInfo.defaultNamespace) {
-      pathSegments.push(namespace);
-    }
-    pathSegments.push(...markdownPath.split("/"));
-    pathSegments[pathSegments.length - 1] = pathSegments[
-      pathSegments.length - 1
-    ].replace(/\.md$/i, "");
-
-    pagePaths.push({
-      versionSlug,
-      pagePath: pathSegments,
-    });
-  }
-}
-
 await writeFile(
   path.join(dataFolder, "index.json"),
-  JSON.stringify(versionInfoList, null, 2),
-);
-
-await writeFile(
-  path.join(dataFolder, "page_paths.json"),
-  JSON.stringify(pagePaths, null, 2),
+  JSON.stringify(downloadedVersions, null, 2),
 );

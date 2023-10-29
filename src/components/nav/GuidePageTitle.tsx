@@ -1,17 +1,17 @@
 "use client";
-import { useEffect } from "react";
+import { ReactElement, useEffect } from "react";
 import { useGuidePageTitleSetter } from "@component/nav/GuidePageTitleProvider.tsx";
 
 export interface GuidePageTitleProps {
-  title: string;
+  title: ReactElement | undefined;
 }
 
 function GuidePageTitle({ title }: GuidePageTitleProps) {
   const setPageTitle = useGuidePageTitleSetter();
   useEffect(() => {
-    setPageTitle(title);
+    setPageTitle(title ?? null);
     return () => {
-      setPageTitle("");
+      setPageTitle(null);
     };
   }, [setPageTitle, title]);
   return null;

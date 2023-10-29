@@ -1,6 +1,11 @@
 "use client";
 
-import React, { PropsWithChildren, useCallback, useState } from "react";
+import React, {
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useState,
+} from "react";
 import css from "../../app/[versionSlug]/layout.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,7 +23,7 @@ function GuideShell({
   gameVersion,
   navigationNodes,
 }: PropsWithChildren<GuideShellProps>) {
-  const [pageTitle, setPageTitle] = useState<string>("");
+  const [pageTitle, setPageTitle] = useState<ReactElement | null>(null);
   const [menuExpanded, setMenuExpanded] = useState(false);
   const toggleMenu = useCallback(() => {
     setMenuExpanded((expanded) => !expanded);
