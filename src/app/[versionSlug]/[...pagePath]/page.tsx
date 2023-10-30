@@ -83,6 +83,9 @@ export async function generateMetadata({
       alternates: {
         canonical: getPagePath(guide, pageId),
       },
+      other: {
+        "docsearch:version": versionSlug,
+      },
     };
   } else {
     return {};
