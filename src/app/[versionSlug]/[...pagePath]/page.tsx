@@ -80,6 +80,9 @@ export async function generateMetadata({
     const titleText = getTextContent(title);
     return {
       title: titleText + " - AE2 Players Guide for " + guide.gameVersion,
+      alternates: {
+        canonical: getPagePath(guide, pageId),
+      },
     };
   } else {
     return {};

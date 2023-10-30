@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 
 export const metadata: Metadata = {
   title: "AE2 Players Guide",
+  metadataBase: new URL("https://guide.appliedenergistics.org"),
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {

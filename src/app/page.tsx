@@ -4,7 +4,14 @@ import {
   GuideVersion,
   guideVersions,
 } from "../build-data/GuideVersionIndex.ts";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "AE2 Players Guide",
+  alternates: {
+    canonical: "/",
+  },
+};
 function GuideVersion({ version }: { version: GuideVersion }) {
   const lastUpdate = new Date(version.generated);
 
