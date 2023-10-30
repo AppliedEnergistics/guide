@@ -16,6 +16,7 @@ import compileGameScene from "./compileGameScene";
 import { getAttributes } from "./mdxUtils.ts";
 import CategoryIndex from "@component/guide-elements/CategoryIndex";
 import { CustomGuideElementProps } from "@component/CustomGuideElementProps.ts";
+import SubPages from "@component/guide-elements/SubPages.tsx";
 
 type CustomElementCompiler = (
   context: CompileContext,
@@ -30,6 +31,7 @@ type CustomGuideComponent<T extends CustomGuideElementProps = any> =
 const components: Record<string, CustomGuideComponent> = {
   BlockImage,
   CategoryIndex,
+  Column,
   ItemLink,
   ItemImage,
   ItemIcon,
@@ -37,7 +39,7 @@ const components: Record<string, CustomGuideComponent> = {
   Recipe,
   RecipeFor,
   Row,
-  Column,
+  SubPages,
 };
 
 const customCompilers: Record<string, CustomElementCompiler> = {
