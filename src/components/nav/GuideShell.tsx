@@ -12,6 +12,7 @@ import Image from "next/image";
 import logo from "@assets/logo_00.png";
 import GuideNavBar, { NavBarNode } from "@component/nav/GuideNavBar.tsx";
 import { GuidePageTitleProvider } from "@component/nav/GuidePageTitleProvider.tsx";
+import { DocSearch } from "@docsearch/react";
 
 export interface GuideShellProps {
   gameVersion: String;
@@ -49,8 +50,16 @@ function GuideShell({
           <span aria-hidden="true"></span>
         </a>
       </div>
-      <div className={css.pageTitle}>{pageTitle && <h1>{pageTitle}</h1>}</div>
+      <div className={css.pageTitle}>{pageTitle}</div>
       <aside onClick={() => setMenuExpanded(false)}>
+        <DocSearch
+          appId="EG2004GHB4"
+          indexName="appliedenergistics"
+          apiKey="ab39bd0dd374963dfa89e457fb10e514"
+          searchParameters={{
+            facetFilters: ["version:" + gameVersion],
+          }}
+        />
         <GuideNavBar rootNodes={navigationNodes} />
       </aside>
       <article>

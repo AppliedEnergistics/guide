@@ -1,3 +1,11 @@
+@import "@docsearch/css";
+
+.DocSearch {
+    width: 100%;
+    margin: 0 0 1em;
+    border-radius: 0;
+}
+
 /* Pixeloid Mono font */
 @font-face {
     font-family: 'Pixeloid Mono';
