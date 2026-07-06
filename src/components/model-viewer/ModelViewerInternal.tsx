@@ -142,6 +142,7 @@ async function initialize(
   setTooltipObject: (object: ReactNode | undefined) => void,
   abortSignal: AbortSignal,
   originalWidth: number,
+  originalHeight: number,
 ): Promise<ControlInterface> {
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -197,9 +198,13 @@ async function initialize(
 
   const updateViewportSize = (width: number, height: number) => {
     renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     // We only scale down, not up
-    const scaling = Math.min(1, width / (originalWidth * 3));
+    const scaling = Math.min(
+      1,
+      width / (originalWidth * 3),
+      height / (originalHeight * 3),
+    );
     camera.zoom = (1 / 0.625) * 16 * cameraProps.zoom * scaling;
     camera.left = -width / 2;
     camera.right = width / 2;
@@ -406,6 +411,7 @@ function ModelViewerInternal({
       setTooltipObject,
       abortController.signal,
       width,
+      height,
     )
       .then((control) => {
         if (disposed) {
@@ -443,6 +449,7 @@ function ModelViewerInternal({
     assetBaseUrl,
     inWorldAnnotations,
     width,
+    height,
   ]);
 
   function zoomIn(e: React.MouseEvent) {
