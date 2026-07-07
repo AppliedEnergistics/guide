@@ -2,6 +2,8 @@
 .wrapper {
     display: inline-flex;
     flex-direction: row;
+    width: 100%;
+    max-width: 100%;
 
     --modelviewer-width: auto;
     --modelviewer-height: auto;
@@ -47,6 +49,8 @@
 
 .root {
     position: relative;
+    width: var(--modelviewer-width);
+    max-width: 100%;
 }
 
 .root > img {
@@ -59,6 +63,7 @@
 
 .root, .root > img, .root > .viewport {
     width: var(--modelviewer-width);
+    max-width: 100%;
     height: auto !important;
     aspect-ratio: var(--modelviewer-aspect-ratio);
     overflow: hidden;

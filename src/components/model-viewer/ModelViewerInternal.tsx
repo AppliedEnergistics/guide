@@ -443,6 +443,7 @@ function ModelViewerInternal({
     assetBaseUrl,
     inWorldAnnotations,
     width,
+    height,
   ]);
 
   function zoomIn(e: React.MouseEvent) {
