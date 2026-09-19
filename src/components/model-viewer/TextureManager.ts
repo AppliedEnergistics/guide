@@ -55,6 +55,10 @@ export default class TextureManager {
     mipmaps: boolean,
     builtIn = false
   ): Promise<Texture> {
+    // three.js builds mipmaps from the whole texture atlas,
+    // which mixes neighboring textures together and causes visible seams
+    mipmaps = false;
+
     // Acquire the image first
     const image = await this.getImage(url, builtIn);
 

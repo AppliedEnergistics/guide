@@ -89,6 +89,87 @@ const shaderInfos: Record<string, ShaderProps> = {
     vertexColor: true,
     textured: true,
   },
+
+  // Minecraft 26.1+ exports name the render pipeline instead of the shader.
+  // Values are copied from Minecraft's RenderPipelines class.
+  "minecraft:pipeline/solid_block": {
+    lighting: "lightmap",
+    alphaTest: null,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/cutout_block": {
+    lighting: "lightmap",
+    alphaTest: 0.5,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/translucent_block": {
+    lighting: "lightmap",
+    alphaTest: 0.01,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/entity_solid": {
+    lighting: "diffuse",
+    alphaTest: null,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/entity_cutout": {
+    lighting: "diffuse",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+
+  // Note: some 26.1 exports draw blocks with entity_cutout_cull / entity_translucent_cull.
+  // Those blocks already have their shading in the vertex colors, so they use "lightmap"
+  //
+  // Once GuideME changes roll out to use the _block pipelines for blocks & AE2 publishes new data,
+  // lighting can/should change to "diffuse" (and entity_translucent_cull can be removed)
+  "minecraft:pipeline/entity_cutout_cull": {
+    lighting: "lightmap",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/entity_translucent_cull": {
+    lighting: "lightmap",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/item_cutout": {
+    lighting: "diffuse",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/item_translucent": {
+    lighting: "diffuse",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/text": {
+    lighting: "none",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "minecraft:pipeline/text_polygon_offset": {
+    lighting: "none",
+    alphaTest: 0.1,
+    vertexColor: true,
+    textured: true,
+  },
+  "ae2:pipeline/storage_cell_leds": {
+    lighting: "none",
+    alphaTest: 0,
+    vertexColor: true,
+    textured: false,
+  },
 };
 
 export default shaderInfos;
