@@ -32,6 +32,14 @@ export async function getGuide(versionSlug: string): Promise<Guide> {
   // Fix up older versions. Introduced in late 1.20.4
   guideData.defaultConfigValues ??= {};
 
+  // Fix up older versions. Page indices were renamed when they moved from AE2 into GuideME (1.21.1)
+  for (const name of ["ItemIndex", "CategoryIndex"]) {
+    const legacy = guideData.pageIndices[`appeng.client.guidebook.indices.${name}`];
+    if (legacy) {
+        guideData.pageIndices[`guideme.indices.${name}`] ??= legacy;
+    }
+  }
+
   try {
       const guide = new Guide(
           versionInfo.baseUrl,

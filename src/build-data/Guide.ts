@@ -221,11 +221,11 @@ export class Guide {
 
     this.pageByItemIndex = Guide.indexToMap(
       index,
-      "appeng.client.guidebook.indices.ItemIndex",
+      "guideme.indices.ItemIndex",
     );
     this.pagesByCategoryIndex = Guide.indexToMap(
       index,
-      "appeng.client.guidebook.indices.CategoryIndex",
+      "guideme.indices.CategoryIndex",
     );
   }
 
