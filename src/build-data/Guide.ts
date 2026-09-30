@@ -219,10 +219,7 @@ export class Guide {
       }
     }
 
-    this.pageByItemIndex = Guide.indexToMap(
-      index,
-      "guideme.indices.ItemIndex",
-    );
+    this.pageByItemIndex = Guide.indexToMap(index, "guideme.indices.ItemIndex");
     this.pagesByCategoryIndex = Guide.indexToMap(
       index,
       "guideme.indices.CategoryIndex",
