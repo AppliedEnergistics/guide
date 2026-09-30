@@ -46,7 +46,7 @@ async function downloadVersion(versionInfo) {
   // Starting with Minecraft 26.1, guides are published per major version
   const versionSlug = development
     ? "development"
-    : (gameMajorVersion ?? gameVersion);
+    : gameMajorVersion ?? gameVersion;
 
   const guideDataUrl = new URL(guideDataPath, url);
   console.info("Downloading %s", guideDataUrl);
