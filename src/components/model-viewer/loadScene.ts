@@ -5,6 +5,7 @@ import TextureManager from "./TextureManager.ts";
 import loadGeometry from "./loadGeometry.ts";
 import loadMaterial from "./loadMaterial.ts";
 import decompress from "../decompress.ts";
+import { fromExpShaderInfo, ShaderProps } from "./shaderInfo.ts";
 
 type LoadedScene = {
   group: Group;
@@ -70,6 +71,16 @@ export default async function loadScene(
   const group = new Group();
   const texturesById = new Map<string, Texture[]>();
   const expScene = ExpScene.getRootAsExpScene(buf);
+
+  const shaderInfos = new Map<string, ShaderProps>();
+  for (let i = 0; i < expScene.shadersLength(); i++) {
+    const expShaderInfo = expScene.shaders(i);
+    const name = expShaderInfo?.name();
+    if (expShaderInfo && name) {
+      shaderInfos.set(name, fromExpShaderInfo(expShaderInfo));
+    }
+  }
+
   for (let i = 0; i < expScene.meshesLength(); i++) {
     const expMesh = expScene.meshes(i);
     if (!expMesh) {
@@ -86,6 +97,7 @@ export default async function loadScene(
       textureManager,
       expMaterial,
       texturesById,
+      shaderInfos,
     );
     const mesh = new Mesh(geometry, material);
     mesh.frustumCulled = false;

@@ -5,6 +5,7 @@ import * as flatbuffers from "flatbuffers";
 import { ExpAnimatedTexturePart } from "../scene/exp-animated-texture-part";
 import { ExpCameraSettings } from "../scene/exp-camera-settings";
 import { ExpMesh } from "../scene/exp-mesh";
+import { ExpShaderInfo } from "../scene/exp-shader-info";
 
 export class ExpScene {
   bb: flatbuffers.ByteBuffer | null = null;
@@ -80,8 +81,25 @@ export class ExpScene {
     return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
   }
 
+  shaders(index: number, obj?: ExpShaderInfo): ExpShaderInfo | null {
+    const offset = this.bb!.__offset(this.bb_pos, 10);
+    return offset
+      ? (obj || new ExpShaderInfo()).__init(
+          this.bb!.__indirect(
+            this.bb!.__vector(this.bb_pos + offset) + index * 4,
+          ),
+          this.bb!,
+        )
+      : null;
+  }
+
+  shadersLength(): number {
+    const offset = this.bb!.__offset(this.bb_pos, 10);
+    return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+  }
+
   static startExpScene(builder: flatbuffers.Builder) {
-    builder.startObject(3);
+    builder.startObject(4);
   }
 
   static addCamera(
@@ -138,6 +156,28 @@ export class ExpScene {
     builder.startVector(4, numElems, 4);
   }
 
+  static addShaders(
+    builder: flatbuffers.Builder,
+    shadersOffset: flatbuffers.Offset,
+  ) {
+    builder.addFieldOffset(3, shadersOffset, 0);
+  }
+
+  static createShadersVector(
+    builder: flatbuffers.Builder,
+    data: flatbuffers.Offset[],
+  ): flatbuffers.Offset {
+    builder.startVector(4, data.length, 4);
+    for (let i = data.length - 1; i >= 0; i--) {
+      builder.addOffset(data[i]!);
+    }
+    return builder.endVector();
+  }
+
+  static startShadersVector(builder: flatbuffers.Builder, numElems: number) {
+    builder.startVector(4, numElems, 4);
+  }
+
   static endExpScene(builder: flatbuffers.Builder): flatbuffers.Offset {
     const offset = builder.endObject();
     return offset;
@@ -162,11 +202,13 @@ export class ExpScene {
     cameraOffset: flatbuffers.Offset,
     meshesOffset: flatbuffers.Offset,
     animatedTexturesOffset: flatbuffers.Offset,
+    shadersOffset: flatbuffers.Offset,
   ): flatbuffers.Offset {
     ExpScene.startExpScene(builder);
     ExpScene.addCamera(builder, cameraOffset);
     ExpScene.addMeshes(builder, meshesOffset);
     ExpScene.addAnimatedTextures(builder, animatedTexturesOffset);
+    ExpScene.addShaders(builder, shadersOffset);
     return ExpScene.endExpScene(builder);
   }
 }

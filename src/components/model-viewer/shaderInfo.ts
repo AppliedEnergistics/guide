@@ -1,7 +1,13 @@
+import { ExpShaderInfo } from "@generated/scene/exp-shader-info.ts";
+import { ExpShaderLighting } from "@generated/scene/exp-shader-lighting.ts";
+
 /**
  * Contains information about the different shaders used in Minecraft,
  * and how that translates into properties of how we render the geometry
  * using them.
+ *
+ * Newer scene exports include this information directly (see {@link fromExpShaderInfo}).
+ * The known shaders below are only used as a fallback for older exports.
  */
 
 export type ShaderProps = {
@@ -173,3 +179,30 @@ const shaderInfos: Record<string, ShaderProps> = {
 };
 
 export default shaderInfos;
+
+/**
+ * Converts shader properties that were exported alongside the scene.
+ */
+export function fromExpShaderInfo(expShaderInfo: ExpShaderInfo): ShaderProps {
+  let lighting: ShaderProps["lighting"];
+  switch (expShaderInfo.lighting()) {
+    case ExpShaderLighting.LIGHTMAP:
+      lighting = "lightmap";
+      break;
+    case ExpShaderLighting.DIFFUSE:
+      lighting = "diffuse";
+      break;
+    case ExpShaderLighting.NONE:
+    default:
+      lighting = "none";
+      break;
+  }
+
+  const alphaTest = expShaderInfo.alphaTest();
+  return {
+    lighting,
+    alphaTest: alphaTest > 0 ? alphaTest : null,
+    vertexColor: expShaderInfo.vertexColor(),
+    textured: expShaderInfo.textured(),
+  };
+}
