@@ -219,13 +219,10 @@ export class Guide {
       }
     }
 
-    this.pageByItemIndex = Guide.indexToMap(
-      index,
-      "appeng.client.guidebook.indices.ItemIndex",
-    );
+    this.pageByItemIndex = Guide.indexToMap(index, "guideme.indices.ItemIndex");
     this.pagesByCategoryIndex = Guide.indexToMap(
       index,
-      "appeng.client.guidebook.indices.CategoryIndex",
+      "guideme.indices.CategoryIndex",
     );
   }
 
