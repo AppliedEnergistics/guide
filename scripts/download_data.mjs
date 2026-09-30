@@ -34,10 +34,19 @@ async function downloadVersion(versionInfo) {
 
   console.log("Downloading %s", url);
   const versionDetails = await fetchJson(url);
-  const { format, generated, modVersion, gameVersion, guideDataPath } =
-    versionDetails;
+  const {
+    format,
+    generated,
+    modVersion,
+    gameVersion,
+    gameMajorVersion,
+    guideDataPath,
+  } = versionDetails;
 
-  const versionSlug = development ? "development" : gameVersion;
+  // Starting with Minecraft 26.1, guides are published per major version
+  const versionSlug = development
+    ? "development"
+    : (gameMajorVersion ?? gameVersion);
 
   const guideDataUrl = new URL(guideDataPath, url);
   console.info("Downloading %s", guideDataUrl);
