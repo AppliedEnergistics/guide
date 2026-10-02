@@ -16,12 +16,14 @@ import { DocSearch } from "@docsearch/react";
 
 export interface GuideShellProps {
   gameVersion: String;
+  versionSlug: string;
   navigationNodes: NavBarNode[];
 }
 
 function GuideShell({
   children,
   gameVersion,
+  versionSlug,
   navigationNodes,
 }: PropsWithChildren<GuideShellProps>) {
   const [pageTitle, setPageTitle] = useState<ReactElement | null>(null);
@@ -57,7 +59,7 @@ function GuideShell({
           indexName="appliedenergistics"
           apiKey="ab39bd0dd374963dfa89e457fb10e514"
           searchParameters={{
-            facetFilters: ["version:" + gameVersion],
+            facetFilters: ["version:" + versionSlug],
           }}
         />
         <GuideNavBar rootNodes={navigationNodes} />

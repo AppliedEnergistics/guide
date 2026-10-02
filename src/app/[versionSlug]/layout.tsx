@@ -53,6 +53,7 @@ async function GuidePageLayout({
     <GuideShell
       navigationNodes={navigationNodes}
       gameVersion={guide.gameVersion}
+      versionSlug={versionSlug}
     >
       {children}
     </GuideShell>
