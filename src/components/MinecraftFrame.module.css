@@ -1,8 +1,0 @@
-
-.frame {
-    display: inline-block;
-    border: calc(4px * var(--gui-scale)) solid;
-    image-rendering: pixelated;
-    border-image-source: url("../assets/background.png");
-    border-image-slice: 4 fill;
-}
