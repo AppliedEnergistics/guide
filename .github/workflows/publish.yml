@@ -40,6 +40,7 @@ jobs:
       # The guide export of each version is attached to the guide-data release as <version-folder>.zip
       - name: Download Guide Data
         run: |
+          mkdir -p build/guide-data/zips
           gh release download guide-data -R "$GITHUB_REPOSITORY" --pattern '*.zip' --dir build/guide-data/zips
           for zip in build/guide-data/zips/*.zip; do
             unzip -q "$zip" -d "build/guide-data/versions/$(basename "$zip" .zip)"
