@@ -30,23 +30,47 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # All guide versions are rendered by the guide website generator of the current Applied Energistics 2 version
+      - name: Checkout Applied Energistics 2
         uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Download Assets
-        run: node scripts/download_data.mjs
+          repository: AppliedEnergistics/Applied-Energistics-2
+          ref: main
+      - uses: ./.github/actions/gradle-setup
+      # The guide export of each version is attached to the guide-data release as <version-folder>.zip
+      - name: Download Guide Data
+        run: |
+          gh release download guide-data -R "$GITHUB_REPOSITORY" --pattern '*.zip' --dir build/guide-data/zips
+          for zip in build/guide-data/zips/*.zip; do
+            unzip -q "$zip" -d "build/guide-data/versions/$(basename "$zip" .zip)"
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Build
-        run: npm run build
+        run: >-
+          ./gradlew renderGuideWebsite
+          -PguideWebsiteVersions=build/guide-data/versions
+          -PguideWebsiteOutput=build/guide-site
+          "-PguideWebsiteArgs=--site-url https://guide.appliedenergistics.org"
+      # The previous website also served the start page of each version at /<version>/index
+      - name: Redirect Old URLs
+        working-directory: build/guide-site
+        run: |
+          for sitemap in */sitemap.xml; do
+            version=$(dirname "$sitemap")
+            mkdir -p "$version/index"
+            cat > "$version/index/index.html" <<EOF
+          <!DOCTYPE html>
+          <html lang="en"><head><meta charset="UTF-8"><title>Redirecting</title>
+          <link rel="canonical" href="https://guide.appliedenergistics.org/$version/">
+          <meta http-equiv="refresh" content="0; url=/$version/"></head>
+          <body><a href="/$version/">Applied Energistics 2 Guide for Minecraft $version</a></body></html>
+          EOF
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: build/guide-site
 
   # Deployment job
   deploy:
